@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"git.fremnet.net/spanet/pkg/spanet"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/freman/spanet/pkg/spanet"
 )
 
 const testRF = `RF:

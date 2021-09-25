@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"git.fremnet.net/spanet/pkg/flags"
+	"github.com/freman/spanet/pkg/flags"
 	"github.com/google/subcommands"
 )
 

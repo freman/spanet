@@ -8,7 +8,7 @@ import (
 	"github.com/google/subcommands"
 
 	// Subcommands
-	_ "git.fremnet.net/spanet/subcmd/connect"
+	_ "github.com/freman/spanet/subcmd/connect"
 )
 
 func main() {

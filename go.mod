@@ -1,4 +1,4 @@
-module git.fremnet.net/spanet
+module github.com/freman/spanet
 
 go 1.14
 
