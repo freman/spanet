@@ -20,6 +20,7 @@ func (*statusCmd) Name() string     { return "status" }
 func (*statusCmd) Synopsis() string { return "Run the RF commamnd" }
 func (*statusCmd) Usage() string {
 	return `status -spa ip:port
+Query the spa for it's current status and return a json blob
 `
 }
 func (s *statusCmd) SetFlags(f *flag.FlagSet) {

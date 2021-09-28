@@ -21,3 +21,12 @@ Use this command on a portable device (or device with a wifi adapter).
 Connect to the SPA's wifi (IIRC it starts with sv-) and run `spanet connect -ssid "some wifi name" -password "some wifi password"`
 
 Once that's run, connect to your network, and find it (It'll be using DHCP so your router may know where it is)
+
+## status -spa ip:port
+
+Query the spa for it's current status and return a json blob
+
+```
+  -spa string
+        Spa host:port
+```
