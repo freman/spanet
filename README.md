@@ -18,6 +18,6 @@ Connect the spa to your network, using `-target ip` skips the initial wifi conne
 ```
 
 Use this command on a portable device (or device with a wifi adapter).
-Connect to the SPA's wifi (IIRC it starts with sv-) and run `spanet connect -ssid "some wifi name" -password "some wifi password"
+Connect to the SPA's wifi (IIRC it starts with sv-) and run `spanet connect -ssid "some wifi name" -password "some wifi password"`
 
 Once that's run, connect to your network, and find it (It'll be using DHCP so your router may know where it is)
