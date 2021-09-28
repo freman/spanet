@@ -108,7 +108,7 @@ func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	op.Set("wlan auth", strconv.Itoa(matched[0].Auth))
 	op.Set("wlan linkmon", "30")
 	op.Set("comm idle", "300")
-	op.Set("comm remote", "*HELLO*")
+	op.Set("comm remote", "0")
 
 	// Disable autoreconn and ip host, should leave it listening on port 2000 on the lan without trying to phone anyone
 	op.Set("sys autoconn", "0")
