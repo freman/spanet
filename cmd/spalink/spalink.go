@@ -9,6 +9,7 @@ import (
 
 	// Subcommands
 	_ "github.com/freman/spanet/subcmd/connect"
+	_ "github.com/freman/spanet/subcmd/server"
 	_ "github.com/freman/spanet/subcmd/status"
 )
 

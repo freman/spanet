@@ -36,7 +36,6 @@ func (s *Spanet) commandExpect(command, expect string) (string, error) {
 
 	buf := make([]byte, 1024)
 	c, err := r.Read(buf)
-	fmt.Println(string(buf[:c]))
 	if err != nil {
 		return "", err
 	}
