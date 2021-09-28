@@ -75,7 +75,10 @@ func (s *Spanet) SetFiltrationCycle(hours int) (int, error) {
 		return 0, err
 	}
 
-	tmp, err := strconv.ParseInt(r, 10, 64)
+	_ = r
+	rs := ""
+
+	tmp, err := strconv.ParseInt(rs, 10, 64)
 	if err != nil {
 		return 0, err
 	}
@@ -97,7 +100,10 @@ func (s *Spanet) SetHeatPumpMode(mode HeatPumpMode) (HeatPumpMode, error) {
 		return 0, err
 	}
 
-	tmp, err := strconv.ParseInt(r, 10, 64)
+	_ = r
+	rs := ""
+
+	tmp, err := strconv.ParseInt(rs, 10, 64)
 	if err != nil {
 		return 0, err
 	}
@@ -116,7 +122,10 @@ func (s *Spanet) SetSVElementBoost(enabled bool) (bool, error) {
 		return false, err
 	}
 
-	return strconv.ParseBool(r)
+	_ = r
+	rs := ""
+
+	return strconv.ParseBool(rs)
 }
 
 func (s *Spanet) SetLockMode(mode LockMode) (LockMode, error) {
@@ -125,10 +134,22 @@ func (s *Spanet) SetLockMode(mode LockMode) (LockMode, error) {
 		return 0, err
 	}
 
-	tmp, err := strconv.ParseInt(r, 10, 64)
+	_ = r
+	rs := ""
+
+	tmp, err := strconv.ParseInt(rs, 10, 64)
 	if err != nil {
 		return 0, err
 	}
 
 	return LockMode(tmp), nil
+}
+
+func (s *Spanet) GetStatus() (Status, error) {
+	r, err := s.command("RF")
+	if err != nil {
+		return Status{}, err
+	}
+
+	return ParseStatus(r)
 }

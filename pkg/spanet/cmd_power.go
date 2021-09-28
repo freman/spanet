@@ -12,7 +12,10 @@ func (s *Spanet) SetPowerSave(mode PowerSaveMode) (PowerSaveMode, error) {
 		return 0, err
 	}
 
-	tmp, err := strconv.ParseInt(r, 10, 64)
+	_ = r
+	rs := ""
+
+	tmp, err := strconv.ParseInt(rs, 10, 64)
 	if err != nil {
 		return 0, err
 	}

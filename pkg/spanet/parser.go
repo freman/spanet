@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-func Parse(reader io.Reader) (status Status, err error) {
+func ParseStatus(reader io.Reader) (status Status, err error) {
 	parser := parser{Status: Status{
 		Pumps:       make([]Pump, 5, 5),
 		SleepTimers: make([]SleepTimer, 2, 2),
@@ -48,6 +48,7 @@ func Parse(reader io.Reader) (status Status, err error) {
 			parser.parseRC(line[4:])
 		case ",RG":
 			parser.parseRG(line[4:])
+			return parser.Status, parser.err
 		}
 
 	}
@@ -89,7 +90,7 @@ func (p *parser) parseUint(i string) uint {
 }
 
 func spa256toTime(i int) time.Time {
-	return time.Date(0, 0, 0, i/256, i%256, 0, 0, time.Local)
+	return time.Date(1, 0, 0, i/256, i%256, 0, 0, time.UTC)
 }
 
 func (p *parser) parseTime(i string) time.Time {
@@ -138,7 +139,6 @@ func (p *parser) parseR6(v string) {
 	p.SetTemperature = Temperature(p.parseUint(list[7]))
 
 	p.PowerSave = PowerSaveMode(p.parseByte(list[9]))
-
 	p.PeakStart = p.parseTime(list[10])
 	p.PeakEnd = p.parseTime(list[11])
 
@@ -148,7 +148,7 @@ func (p *parser) parseR6(v string) {
 		p.SleepTimers[i].FinishTime = p.parseTime(list[16+i])
 	}
 
-	p.Timeout = time.Duration(p.parseUint(list[19])) * time.Minute
+	p.Timeout.Duration = time.Duration(p.parseUint(list[19])) * time.Minute
 }
 
 func (p *parser) parseR7(v string) {

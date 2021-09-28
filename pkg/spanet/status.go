@@ -1,8 +1,9 @@
 package spanet
 
-//go:generate stringer -type=PumpState,BlowerMode,LightsMode,PowerSaveMode,HeatPumpMode,LockMode,SleepTimerState -linecomment -output=status_strings.go meh.go
+//go:generate enumer -sql=false -linecomment -type=PumpState,BlowerMode,LightsMode,PowerSaveMode,HeatPumpMode,LockMode,SleepTimerState -output=status_strings.go $GOFILE
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -15,6 +16,9 @@ type PowerSaveMode byte
 type HeatPumpMode byte
 type LockMode byte
 type Temperature uint
+type Timeout struct {
+	time.Duration
+}
 
 type Status struct {
 	SetTemperature   Temperature `rf="R6,9"`
@@ -37,7 +41,7 @@ type Status struct {
 	PeakStart      time.Time     `rf="R5,12"`
 	PeakEnd        time.Time     `rf="R6,13"`
 	AutoSanitise   time.Time     `rf="R7,2"`
-	Timeout        time.Duration `rf="R6,21"` // minutes
+	Timeout        Timeout       `rf="R6,21"` // minutes
 	HeatPumpMode   HeatPumpMode  `rf="R7,27"`
 	SVElementBoost bool          `rf="R7,26"`
 
@@ -140,4 +144,65 @@ const (
 
 func (o OperationMode) String() string {
 	return string(o)
+}
+
+func (t TimeDate) AsTime() time.Time {
+	return time.Date(
+		int(t.Year),
+		time.Month(t.Month),
+		int(t.Day),
+		int(t.Hour),
+		int(t.Minute),
+		0,
+		0,
+		time.UTC,
+	)
+}
+
+func (t TimeDate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.AsTime())
+}
+
+func (t *TimeDate) UnmarshalJSON(b []byte) error {
+	var tmp time.Time
+	if err := json.Unmarshal(b, &tmp); err != nil {
+		return err
+	}
+
+	t.Year = uint(tmp.Year())
+	t.Month = byte(tmp.Month())
+	t.Day = byte(tmp.Day())
+	t.Hour = byte(tmp.Hour())
+	t.Minute = byte(tmp.Minute())
+
+	return nil
+}
+
+func (t Temperature) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.Value())
+}
+
+func (t *Temperature) UnmarshalJSON(b []byte) error {
+	var tmp float64
+	if err := json.Unmarshal(b, &tmp); err != nil {
+		return err
+	}
+	tmp2 := Temperature(tmp * 100)
+	*t = tmp2
+
+	return nil
+}
+
+func (t Timeout) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.Duration.Round(time.Minute).Minutes())
+}
+
+func (t *Timeout) UnmarshalJSON(b []byte) error {
+	var tmp uint
+	if err := json.Unmarshal(b, &tmp); err != nil {
+		return err
+	}
+	t.Duration = time.Duration(tmp) * time.Minute
+
+	return nil
 }

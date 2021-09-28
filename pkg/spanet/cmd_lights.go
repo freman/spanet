@@ -2,23 +2,13 @@ package spanet
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // SetLightsMode on the controller
 // Command: S07:x
 func (s *Spanet) SetLightsMode(mode LightsMode) (LightsMode, error) {
-	r, err := s.command(fmt.Sprintf("S07:%d", mode))
-	if err != nil {
-		return 0, err
-	}
-
-	tmp, err := strconv.ParseInt(r[0:0], 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return LightsMode(tmp), nil
+	_, err := s.commandExpect(fmt.Sprintf("S07:%d", mode), fmt.Sprintf("%d", mode))
+	return mode, err
 }
 
 // SetLightsBrightness on the controller

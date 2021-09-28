@@ -23,7 +23,7 @@ const testRF = `RF:
 ,RG,1,1,1,1,1,1,1-1-014,1-1-01,1-1-01,0-,0-,0,:*`
 
 func TestThing(t *testing.T) {
-	net, err := spanet.Parse(strings.NewReader(testRF))
+	net, err := spanet.ParseStatus(strings.NewReader(testRF))
 	if err != nil {
 		panic(err)
 	}

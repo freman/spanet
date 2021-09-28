@@ -1,17 +1,31 @@
 package spanet
 
 import (
-	"errors"
 	"fmt"
+	"io"
+	"net"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type Spanet struct {
+	c net.Conn
 }
 
-func (s *Spanet) command(command string) (string, error) {
-	return "", errors.New("not implemented")
+func New(c net.Conn) *Spanet {
+	// Improve reliability by always starting on a new line
+	time.Sleep(200 * time.Millisecond)
+	c.Write([]byte{'\n'})
+	time.Sleep(200 * time.Millisecond)
+	return &Spanet{c}
+}
+
+func (s *Spanet) command(command string) (io.Reader, error) {
+	if _, err := s.c.Write(append([]byte(command), '\n')); err != nil {
+		return nil, err
+	}
+	return s.c, nil
 }
 
 func (s *Spanet) commandExpect(command, expect string) (string, error) {
@@ -20,11 +34,19 @@ func (s *Spanet) commandExpect(command, expect string) (string, error) {
 		return "", err
 	}
 
-	if r != expect {
-		return "", ErrUnexpectedResponse{expect, r}
+	buf := make([]byte, 1024)
+	c, err := r.Read(buf)
+	fmt.Println(string(buf[:c]))
+	if err != nil {
+		return "", err
 	}
 
-	return r, errors.New("not implemented")
+	rs := string(buf[:c])
+	if !strings.Contains(rs, expect) {
+		return "", ErrUnexpectedResponse{expect, rs}
+	}
+
+	return rs, nil
 }
 
 func (s *Spanet) commandTime(cmd string, when time.Time) (time.Time, error) {
@@ -32,8 +54,9 @@ func (s *Spanet) commandTime(cmd string, when time.Time) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-
-	tmp, err := strconv.ParseInt(r, 10, 64)
+	_ = r
+	rs := ""
+	tmp, err := strconv.ParseInt(rs, 10, 64)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -48,15 +71,7 @@ func (s *Spanet) commandInt(cmd string, value, min, max int, name string, format
 
 	format = append(format, "%d")
 
-	r, err := s.command(fmt.Sprintf("%s:"+format[0], cmd, value))
-	if err != nil {
-		return 0, err
-	}
+	_, err := s.commandExpect(fmt.Sprintf("%s:"+format[0], cmd, value), fmt.Sprintf(format[0], value))
 
-	tmp, err := strconv.ParseInt(r, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(tmp), nil
+	return value, err
 }

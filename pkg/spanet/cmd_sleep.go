@@ -17,8 +17,10 @@ func (s *Spanet) setSleepTimer(timer int, offset int, value string) (int, error)
 	if err != nil {
 		return 0, err
 	}
+	_ = r
 
-	tmp, err := strconv.ParseInt(r, 10, 64)
+	rs := ""
+	tmp, err := strconv.ParseInt(rs, 10, 64)
 	if err != nil {
 		return 0, err
 	}
