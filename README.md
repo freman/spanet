@@ -30,3 +30,16 @@ Query the spa for it's current status and return a json blob
   -spa string
         Spa host:port
 ```
+
+## server -spa ip:port -listen ip:port
+
+Run a server that translates the language of the spa into JSON and back again
+
+```
+  -spa string
+        Spa host:port
+  -listen string
+        Listening host:port
+```
+
+This server API is documented in [API.md](API.md)

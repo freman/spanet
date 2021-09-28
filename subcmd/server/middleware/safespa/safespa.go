@@ -1,7 +1,6 @@
 package safespa
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"sync"
@@ -33,7 +32,6 @@ func (s *SafeSpa) Mutex(next echo.HandlerFunc) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusBadGateway, err)
 			}
 
-			fmt.Println("handing over to spanet")
 			s.Spanet = spanet.New(c)
 		}
 
