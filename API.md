@@ -17,6 +17,19 @@ A JSON API provided by the `spanet server` subcommand
 	- [GET /spa/blower/modes](#get-spablowermodes)
 	- [POST /spa/blower](#post-spablower)
 	- [POST /spa/blower/speed](#post-spablowerspeed)
+	- [POST /spa/temperature](#post-spatemperature)
+	- [GET /spa/operation/modes](#get-spaoperationmodes)
+	- [POST /spa/operation/mode](#post-spaoperationmode)
+	- [POST /spa/sanitise](#post-spasanitise)
+	- [POST /spa/sanatise/time](#post-spasanatisetime)
+	- [POST /spa/filtration/runtime](#post-spafiltrationruntime)
+	- [POST /spa/filtration/cycle](#post-spafiltrationcycle)
+	- [POST /spa/timeout](#post-spatimeout)
+	- [GET /spa/heatpump/modes](#get-spaheatpumpmodes)
+	- [POST /spa/heatpump/mode](#post-spaheatpumpmode)
+	- [POST /spa/svelementboost](#post-spasvelementboost)
+	- [GET /spa/lock/modes](#get-spalockmodes)
+	- [POST /spa/lock/mode](#post-spalockmode)
 
 ## GET /spa/status
 
@@ -72,6 +85,7 @@ Accepts a JSON object that specifies the colour of the lights
 ```
 
 ## POST /spalights/off
+
 Turns the lights off
 
 ## POST /spa/lights/toggle
@@ -84,7 +98,7 @@ Returns a list of supported pump states
 
 ## POST /spa/pump/$pumpNumber
 
-Accepts a JSON object to specifies the state of the given $pumpNumber
+Accepts a JSON object to specify the state of the given $pumpNumber
 
 ```json
 {"State": "On"}
@@ -96,7 +110,7 @@ Returns a list of supported blower modes
 
 ## POST /spa/blower
 
-Accepts a JSON object to specifies the state of the blower
+Accepts a JSON object to specify the state of the blower
 
 ```json
 {
@@ -109,10 +123,116 @@ Speed is optional.
 
 ## POST /spa/blower/speed
 
-Accepts a JSON object to specifies the speed of the blower
+Accepts a JSON object to specify the speed of the blower
 
 ```json
 {
  "Speed": 1
+}
+```
+
+## POST /spa/temperature
+
+Accepts a JSON object to specify the target temperature
+
+```json
+{
+ "Temperature": 38.9
+}
+```
+
+## GET /spa/operation/modes
+
+Returns a list of supported operation modes
+
+## POST /spa/operation/mode
+
+Accepts a JSON object to specify the speed of the blower
+
+```json
+{
+ "Mode": "NORM"
+}
+```
+
+## POST /spa/sanitise
+
+Toggle sanatise function
+
+## POST /spa/sanatise/time
+
+Accepts a JSON object to specify the time to auto sanitise
+
+```json
+{
+ "Time": "12:20"
+}
+```
+
+## POST /spa/filtration/runtime
+
+Accepts a JSON object to specify the filtration runtime
+
+```json
+{
+ "Hours": 2
+}
+```
+
+## POST /spa/filtration/cycle
+
+Accepts a JSON object to specify the filtration cycle
+
+```json
+{
+ "Hours": 2
+}
+```
+
+## POST /spa/timeout
+
+Accepts a JSON object to specify the timeout (sleep)
+
+```json
+{
+ "Minutes": 30
+}
+```
+
+## GET /spa/heatpump/modes
+
+Returns a list of supported heatpump modes
+
+## POST /spa/heatpump/mode
+
+Accepts a JSON object to specify the heatpump mode
+
+```json
+{
+ "Mode": "Heat"
+}
+```
+
+## POST /spa/svelementboost
+
+Accepts a JSON object to enable or disable sv element boost
+
+```json
+{
+ "Boost": false
+}
+```
+
+## GET /spa/lock/modes
+
+Returns a list of supported lock modes
+
+## POST /spa/lock/mode
+
+Accepts a JSON object to specify the lock mode
+
+```json
+{
+ "Mode": "Off"
 }
 ```

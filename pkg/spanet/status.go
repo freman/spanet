@@ -116,6 +116,15 @@ const (
 	OperationModeWeekdays OperationMode = "WEEK"
 )
 
+func OperationModeNames() []string {
+	return []string{
+		string(OperationModeNormal),
+		string(OperationModeEconomy),
+		string(OperationModeAway),
+		string(OperationModeWeekdays),
+	}
+}
+
 const (
 	PowerSaveModeOff  PowerSaveMode = 0 // Off
 	PowerSaveModeLow  PowerSaveMode = 1 // Low

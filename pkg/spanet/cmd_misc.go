@@ -27,7 +27,7 @@ func (s *Spanet) ToggleSanitise() error {
 	return err
 }
 
-func (s *Spanet) SetOperationalMode(mode OperationMode) (OperationMode, error) {
+func (s *Spanet) SetOperationMode(mode OperationMode) (OperationMode, error) {
 	var arg string
 	switch mode {
 	case OperationModeNormal:
