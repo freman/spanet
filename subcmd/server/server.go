@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 
+	"github.com/freman/spanet/pkg/spanet"
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
 	"github.com/google/subcommands"
 	"github.com/labstack/echo/v4"
@@ -37,13 +38,19 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 
 	api.GET("/status", svc.handleGetStatus)
 	api.POST("/lights", svc.handlePostLights)
-	api.GET("/lights/modes", svc.handleGetLightsModes)
+	api.GET("/lights/modes", svc.handleGetList(spanet.LightsModeNames()))
 	api.POST("/lights/mode", svc.handlePostLightsMode)
 	api.POST("/lights/brightness", svc.handlePostLightsBrightness)
 	api.POST("/lights/effectspeed", svc.handlePostLightsEffectSpeed)
 	api.POST("/lights/colour", svc.handlePostLightsColour)
 	api.POST("/lights/off", svc.handlePostLightsOff)
 	api.POST("/lights/toggle", svc.handlePostToggleLights)
+
+	api.POST("/pump/:pump:", svc.handlePostPump)
+	api.GET("/pump/states", svc.handleGetList(spanet.PumpStateNames()))
+	api.POST("/blower", svc.handlePostBlower)
+	api.GET("/blower/modes", svc.handleGetList(spanet.BlowerModeNames()))
+	api.POST("/blower/speed", svc.handlePostBlowerSpeed)
 
 	e.Start(s.listen)
 
