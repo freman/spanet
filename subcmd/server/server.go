@@ -47,7 +47,7 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	api.POST("/lights/toggle", svc.handleSimplePost("ToggleLights"))
 
 	// cmd_mechanical.go
-	api.POST("/pump/:pump:", svc.handlePostPump)
+	api.POST("/pump/:pump", svc.handlePostPump)
 	api.GET("/pump/states", svc.handleGetList(spanet.PumpStateNames()))
 	api.POST("/blower", svc.handlePostBlower)
 	api.GET("/blower/modes", svc.handleGetList(spanet.BlowerModeNames()))
@@ -67,6 +67,28 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	api.POST("/svelementboost", svc.handleSimplePost("SetSVElementBoost"))
 	api.GET("/lock/modes", svc.handleGetList(spanet.LockModeNames()))
 	api.POST("/lock/mode", svc.handleSimplePost("SetLockMode"))
+
+	// cmd_power.go
+	api.GET("/powersave/modes", svc.handleGetList(spanet.PowerSaveModeNames()))
+	api.POST("/powersave/mode", svc.handleSimplePost("SetPowerSave"))
+	api.POST("/peek/start", svc.handlePostPeekStart)
+	api.POST("/peek/end", svc.handlePostPeekEnd)
+
+	// cmd_sleep.go
+	api.GET("/sleeptimer/states", svc.handleGetList(spanet.SleepTimerStateNames()))
+	api.POST("/sleeptimer/:timer/state", svc.handlePostSetSleepTimerState)
+	api.POST("/sleeptimer/:timer/start", svc.handlePostSleepTimerStart)
+	api.POST("/sleeptimer/:timer/end", svc.handlePostSleepTimerEnd)
+	api.POST("/sleeptimer/:timer", svc.handlePostSleepTimer)
+
+	// cmd_timedate.go
+	api.POST("/datetime/year", svc.handleSimplePost("SetYear"))
+	api.POST("/datetime/month", svc.handleSimplePost("SetMonth"))
+	api.POST("/datetime/day", svc.handleSimplePost("SetDay"))
+	api.POST("/datetime/hour", svc.handleSimplePost("SetHour"))
+	api.POST("/datetime/minute", svc.handleSimplePost("SetMinute"))
+	api.POST("/datetime/year", svc.handleSimplePost("SetYear"))
+	api.POST("/datetime", svc.handlePostDateTime)
 
 	api.GET("/status", svc.handleGetStatus)
 

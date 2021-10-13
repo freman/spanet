@@ -30,6 +30,21 @@ A JSON API provided by the `spanet server` subcommand
 	- [POST /spa/svelementboost](#post-spasvelementboost)
 	- [GET /spa/lock/modes](#get-spalockmodes)
 	- [POST /spa/lock/mode](#post-spalockmode)
+	- [Get /spa/powersave/modes](#get-spapowersavemodes)
+	- [POST /spa/powersave/mode](#post-spapowersavemode)
+	- [POST /spa/peek/start](#post-spapeekstart)
+	- [POST /spa/peek/end](#post-spapeekend)
+	- [Get /spa/sleeptimer/states](#get-spasleeptimerstates)
+	- [Post /spa/sleeptimer/$timerNumber/state](#post-spasleeptimertimernumberstate)
+	- [Post /spa/sleeptimer/$timerNumber/start](#post-spasleeptimertimernumberstart)
+	- [Post /spa/sleeptimer/$timerNumber/end](#post-spasleeptimertimernumberend)
+	- [Post /spa/sleeptimer/$timerNumber](#post-spasleeptimertimernumber)
+	- [Post /spa/datetime/year](#post-spadatetimeyear)
+	- [Post /spa/datetime/month](#post-spadatetimemonth)
+	- [Post /spa/datetime/day](#post-spadatetimeday)
+	- [Post /spa/datetime/hour](#post-spadatetimehour)
+	- [Post /spa/datetime/minute](#post-spadatetimeminute)
+	- [Post /spa/datetime](#post-spadatetime)
 
 ## GET /spa/status
 
@@ -236,3 +251,145 @@ Accepts a JSON object to specify the lock mode
  "Mode": "Off"
 }
 ```
+
+## Get /spa/powersave/modes
+
+Returns a list of supported powersave modes
+
+## POST /spa/powersave/mode
+
+Accepts a JSON object to specify the powersave mode
+
+```json
+{
+ "Mode": "Low"
+}
+```
+
+## POST /spa/peek/start
+
+Accepts a JSON object to specify when peek power starts
+
+```json
+{
+ "Time": "11:10"
+}
+```
+
+## POST /spa/peek/end
+
+Accepts a JSON object to specify when peek power ends
+
+```json
+{
+ "Time": "11:10"
+}
+```
+
+## Get /spa/sleeptimer/states
+
+Returns a list of supported sleeptimer states
+
+## Post /spa/sleeptimer/$timerNumber/state
+
+Accepts a JSON object to specify the sleep timer state for the given $timerNumber
+
+```json
+{
+  "State": "Everyday"
+}
+```
+
+## Post /spa/sleeptimer/$timerNumber/start
+
+Accepts a JSON object to specify the sleep timer start for the given $timerNumber
+
+```json
+{
+  "Time": "11:10"
+}
+```
+
+## Post /spa/sleeptimer/$timerNumber/end
+
+Accepts a JSON object to specify the sleep timer end for the given $timerNumber
+
+```json
+{
+  "Time": "11:10"
+}
+```
+
+## Post /spa/sleeptimer/$timerNumber
+
+Shortcut to set all 3 parameters for a given sleep $timerNumber
+
+```json
+{
+  "State": "Everyday",
+  "Start": "11:10",
+  "End": "11:10"
+}
+```
+
+## Post /spa/datetime/year
+
+Accepts a json object to specify the year
+
+```json
+{
+  "Year": 2021,
+}
+```
+
+## Post /spa/datetime/month
+
+Accepts a json object to specify the month
+
+```json
+{
+  "Month": 10,
+}
+```
+
+## Post /spa/datetime/day
+
+Accepts a json object to specify the day
+
+```json
+{
+  "Day": 3,
+}
+```
+
+## Post /spa/datetime/hour
+
+Accepts a json object to specify the hour
+
+```json
+{
+  "Hour": 21,
+}
+```
+
+## Post /spa/datetime/minute
+
+Accepts a json object to specify the minute
+
+```json
+{
+  "Minute": 12,
+}
+```
+
+## Post /spa/datetime
+
+If you think the previous 5 methods were a bit silly, well that's how the
+spa api expects them, you can call this method with a date/time and just get on with life
+
+```json
+{
+  "DateTime": "2006-01-02 15:04",
+}
+```
+

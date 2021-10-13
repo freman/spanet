@@ -127,9 +127,112 @@ func (s *service) handlePostBlower(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
 }
 
-func (s *service) handlePostSanitiseTime(c echo.Context) error {
+func (s *service) parseTimeInput(c echo.Context) (time.Time, error) {
 	var input struct {
 		Time string
+	}
+
+	if err := c.Bind(&input); err != nil {
+		return time.Time{}, echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	t, err := time.Parse("15:04", input.Time)
+	if err != nil {
+		return time.Time{}, echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	return t, nil
+}
+
+func (s *service) handlePostSanitiseTime(c echo.Context) error {
+	t, err := s.parseTimeInput(c)
+	if err != nil {
+		return err
+	}
+
+	if _, err := s.spa.SetAutoSanitiseTime(t); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostPeekStart(c echo.Context) error {
+	t, err := s.parseTimeInput(c)
+	if err != nil {
+		return err
+	}
+
+	if _, err := s.spa.SetPeakStart(t); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostPeekEnd(c echo.Context) error {
+	t, err := s.parseTimeInput(c)
+	if err != nil {
+		return err
+	}
+
+	if _, err := s.spa.SetPeakEnd(t); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostSetSleepTimerState(c echo.Context) error {
+	var input struct {
+		State spanet.SleepTimerState
+	}
+
+	timer, err := strconv.ParseInt(c.Param("timer"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if _, err := s.spa.SetSleepTimerState(int(timer), input.State); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostSleepTimerStart(c echo.Context) error {
+	var input struct {
+		Time timeParam
+	}
+
+	timer, err := strconv.ParseInt(c.Param("timer"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if _, err := s.spa.SetSleepTimerStart(int(timer), input.Time.Time); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostSleepTimerEnd(c echo.Context) error {
+	var input struct {
+		Time string
+	}
+
+	timer, err := strconv.ParseInt(c.Param("timer"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
 	}
 
 	if err := c.Bind(&input); err != nil {
@@ -141,7 +244,54 @@ func (s *service) handlePostSanitiseTime(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
 	}
 
-	if _, err := s.spa.SetAutoSanitiseTime(t); err != nil {
+	if _, err := s.spa.SetSleepTimerEnd(int(timer), t); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostSleepTimer(c echo.Context) error {
+	var input struct {
+		State spanet.SleepTimerState
+		Start timeParam
+		End   timeParam
+	}
+
+	timer, err := strconv.ParseInt(c.Param("timer"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if _, err := s.spa.SetSleepTimerState(int(timer), input.State); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	if _, err := s.spa.SetSleepTimerEnd(int(timer), input.Start.Time); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	if _, err := s.spa.SetSleepTimerEnd(int(timer), input.End.Time); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
+	}
+
+	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
+}
+
+func (s *service) handlePostDateTime(c echo.Context) error {
+	var input struct {
+		DateTime timeDateParam
+	}
+
+	if err := c.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error(), err)
+	}
+
+	if err := s.spa.SetDateTime(input.DateTime.Time); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
 	}
 
