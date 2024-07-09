@@ -11,16 +11,15 @@ func (s *Spanet) setSleepTimer(timer int, offset int, value string) (int, error)
 		return 0, ErrValueOutOfRange{1, 2, timer, "timer"}
 	}
 
-	cmd := fmt.Sprintf("W%d", 67+offset+(timer-1)*3)
+	// All 3 commands for setting the 2 timers (6 commands in total) are in the sequence
+	// SetState, SetStart, SetEnd hence the funky math with the offset by 3
+	cmd := fmt.Sprintf("W%d:%s", 67+offset+(timer-1)*3, value)
 
-	r, err := s.command(fmt.Sprintf("%s:%s", cmd, value))
-	if err != nil {
+	if _, err := s.commandExpect(cmd, value); err != nil {
 		return 0, err
 	}
-	_ = r
 
-	rs := ""
-	tmp, err := strconv.ParseInt(rs, 10, 64)
+	tmp, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
 		return 0, err
 	}
