@@ -1,21 +1,5 @@
 package spanet
 
-/*
-RF:
-,R2,18,250,51,70,4,[TimeDate.Hour],[TimeDate.Minute],55,[TimeDate.Day],[TimeDate.Month],[TimeDate.Year],376,9999,1,0,490,207,34,6000,602,23,20,0,0,0,0,44,35,45,:
-,R3,32,1,4,4,4,SW V5 17 05 31,SV3,18480001,20000826,1,0,0,0,0,0,NA,7,0,470,Filtering,4,0,7,7,0,0,:
-,R4,[OperationMode],0,0,0,1,0,3547,4,20,4500,7413,567,1686,0,8388608,0,0,5,0,98,0,10084,4,80,100,0,0,4,:
-,R5,0,1,0,1,0,0,0,0,0,[Sleeping],[UVOzone],[Heating],[Auto],[Lights.On],[WaterTemperature],[Sanitise],3,[Pumps.1.State],[Pumps.2.State],[Pumps.3.State],[Pumps.4.State],[Pumps.5.State],0,1,2,6,:
-,R6,[Blower.VariableSpeed],[Lights.Brightness],[Lights.Colour],[Lights.Mode],[Lights.Speed],[FiltrationHour],[FiltrationCycles],[SetTemperature],1,[PowerSave],[PeakStart],[PeakEnd],[SleepTimers.1.State],[SleepTimers.2.State],[SleepTimers.1.StartTime],[SleepTimers.2.StartTime],[SleepTimers.1.FinishTime],[SleepTimers.2.FinishTime],0,[Timeout],0,0,0,0,2,3,0,:
-,R7,[AutoSanitise],0,1,1,1,0,1,0,0,0,253,191,253,240,483,125,77,1,0,0,0,23,200,1,[SVElementBoost],[HeatPumpMode],31,32,35,100,5,:
-,R9,F1,255,0,0,0,0,0,0,0,0,0,0,:
-,RA,F2,0,0,0,0,0,0,255,0,0,0,0,:
-,RB,F3,0,0,0,0,0,0,0,0,0,0,0,:
-,RC,0,1,1,0,0,0,0,0,0,[Blower.Mode],0,0,1,0,:
-,RE,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,-4,13,30,8,5,1,0,0,0,0,0,:*
-,RG,1,[Pumps.2.SwitchOn],[Pumps.3.SwitchOn],[Pumps.4.SwitchOn],[Pumps.5.SwitchOn],1,[Pumps.1.Installed]-[Pumps.1.SpeedType]-[Pumps.1.SpeedTypes],[Pumps.2.Installed]-[Pumps.2.SpeedType]-[Pumps.2.SpeedTypes],[Pumps.3.Installed]-[Pumps.3.SpeedType]-[Pumps.3.SpeedTypes],[Pumps.4.Installed]-[Pumps.4.SpeedType]-[Pumps.4.SpeedTypes],[Pumps.5.Installed]-[Pumps.5.SpeedType]-[Pumps.5.SpeedTypes],[Lock],:*
-*/
-
 import (
 	"bufio"
 	"io"
@@ -118,7 +102,7 @@ func (p *parser) parseR5(v string) {
 	p.Heating = p.parseBool(list[11])
 	p.Auto = p.parseBool(list[12])
 	p.Lights.On = p.parseBool(list[13])
-	p.WaterTemperature = Temperature(p.parseUint(list[14]))
+	p.WaterTemperature = float64(p.parseUint(list[14])) / 10.0
 	p.Sanitise = p.parseBool(list[15])
 
 	for i := 0; i < 5; i++ {
@@ -136,7 +120,7 @@ func (p *parser) parseR6(v string) {
 	p.Lights.Speed = p.parseByte(list[4])
 	p.FiltrationHour = p.parseByte(list[5])
 	p.FiltrationCycles = p.parseByte(list[6])
-	p.SetTemperature = Temperature(p.parseUint(list[7]))
+	p.SetTemperature = float64(p.parseUint(list[7])) / 10.0
 
 	p.PowerSave = PowerSaveMode(p.parseByte(list[9]))
 	p.PeakStart = p.parseTime(list[10])

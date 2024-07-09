@@ -15,9 +15,9 @@ type Spanet struct {
 
 func New(c net.Conn) *Spanet {
 	// Improve reliability by always starting on a new line
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	c.Write([]byte{'\n'})
-	time.Sleep(200 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	return &Spanet{c}
 }
 
@@ -73,4 +73,8 @@ func (s *Spanet) commandInt(cmd string, value, min, max int, name string, format
 	_, err := s.commandExpect(fmt.Sprintf("%s:"+format[0], cmd, value), fmt.Sprintf(format[0], value))
 
 	return value, err
+}
+
+func (s *Spanet) Close() error {
+	return s.c.Close()
 }

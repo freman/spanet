@@ -35,6 +35,13 @@ func (s *SafeSpa) Mutex(next echo.HandlerFunc) echo.HandlerFunc {
 			s.Spanet = spanet.New(c)
 		}
 
-		return next(c)
+		err := next(c)
+
+		// Hack: until I can reliably detect the spa dropping the connection
+		// every connection will be a new connection, we'll just pretend it's recycled.
+		s.Spanet.Close()
+		s.Spanet = nil
+
+		return err
 	}
 }
