@@ -1,6 +1,8 @@
 package spanet
 
-import "time"
+import (
+	"time"
+)
 
 // SetYear on the controller
 // Valid: 1970-20237

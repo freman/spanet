@@ -20,6 +20,8 @@ func ParseStatus(reader io.Reader) (status Status, err error) {
 		switch line[0:3] {
 		case ",R2":
 			parser.parseR2(line[4:])
+		case ",R3":
+			parser.parseR3(line[4:])
 		case ",R4":
 			parser.parseR4(line[4:])
 		case ",R5":
@@ -83,15 +85,31 @@ func (p *parser) parseTime(i string) time.Time {
 
 func (p *parser) parseR2(v string) {
 	list := strings.Split(v, ",")
+	p.Power.Amps = int(p.parseUint(list[0]))
+	p.Power.Volts = int(p.parseUint(list[1]))
+	p.CaseTemperature = float64(p.parseUint(list[2]))
 	p.TimeDate.Hour = p.parseByte(list[5])
 	p.TimeDate.Minute = p.parseByte(list[6])
 	p.TimeDate.Day = p.parseByte(list[8])
 	p.TimeDate.Month = p.parseByte(list[9])
 	p.TimeDate.Year = p.parseUint(list[10])
+	p.HeaterTemperature = float64(p.parseUint(list[11])) / 10.0
+	p.WaterPresent = p.parseBool(list[13])
+	p.AwakeRemains = int(p.parseUint(list[15]))
+	p.FilterPumpTotalRunTime = int(p.parseUint(list[16]))
+	p.FilterPumpReq = int(p.parseUint(list[17]))
+	p.RuntimeHours = float64(p.parseUint(list[20])) / 10.0
+}
+
+func (p *parser) parseR3(v string) {
+	list := strings.Split(v, ",")
+	p.Power.HeatingAmps = float64(p.parseUint(list[21])) / 10.0
+	p.Power.CurrentLimit = int(p.parseUint(list[0]))
+	p.Power.LoadShed = int(p.parseUint(list[16]))
 }
 
 func (p *parser) parseR4(v string) {
-	p.OperationMode = OperationMode(strings.Split(v, ",")[0])
+	p.OperationMode, _ = OperationModeString(strings.Split(v, ",")[0])
 }
 
 func (p *parser) parseR5(v string) {
@@ -119,7 +137,7 @@ func (p *parser) parseR6(v string) {
 	p.Lights.Mode = LightsMode(p.parseByte(list[3]))
 	p.Lights.Speed = p.parseByte(list[4])
 	p.FiltrationHour = p.parseByte(list[5])
-	p.FiltrationCycles = p.parseByte(list[6])
+	p.FiltrationCycle = p.parseByte(list[6])
 	p.SetTemperature = float64(p.parseUint(list[7])) / 10.0
 
 	p.PowerSave = PowerSaveMode(p.parseByte(list[9]))

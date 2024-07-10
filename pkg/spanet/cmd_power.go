@@ -1,26 +1,12 @@
 package spanet
 
 import (
-	"fmt"
-	"strconv"
 	"time"
 )
 
 func (s *Spanet) SetPowerSave(mode PowerSaveMode) (PowerSaveMode, error) {
-	r, err := s.command(fmt.Sprintf("W63:%d", mode))
-	if err != nil {
-		return 0, err
-	}
-
-	_ = r
-	rs := ""
-
-	tmp, err := strconv.ParseInt(rs, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return PowerSaveMode(tmp), nil
+	r, err := s.setMode("W63", byte(mode))
+	return PowerSaveMode(r), err
 }
 
 func (s *Spanet) SetPeakStart(when time.Time) (time.Time, error) {

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/freman/spanet/pkg/spanet"
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
 	"github.com/labstack/echo/v4"
@@ -157,7 +158,7 @@ func (s *service) handlePostSanitiseTime(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
 }
 
-func (s *service) handlePostPeekStart(c echo.Context) error {
+func (s *service) handlePostPeakStart(c echo.Context) error {
 	t, err := s.parseTimeInput(c)
 	if err != nil {
 		return err
@@ -170,7 +171,7 @@ func (s *service) handlePostPeekStart(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
 }
 
-func (s *service) handlePostPeekEnd(c echo.Context) error {
+func (s *service) handlePostPeakEnd(c echo.Context) error {
 	t, err := s.parseTimeInput(c)
 	if err != nil {
 		return err
@@ -328,6 +329,11 @@ func (s *service) handleSimplePost(fn string, name ...string) echo.HandlerFunc {
 			v := reflect.New(bindable)
 
 			if err := c.Bind(v.Interface()); err != nil {
+				if err, isa := err.(*echo.HTTPError); isa {
+					return err
+				}
+				spew.Config.DisableMethods = true
+				spew.Dump(err)
 				return echo.NewHTTPError(http.StatusBadRequest, err)
 			}
 

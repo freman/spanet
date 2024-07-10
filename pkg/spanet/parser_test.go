@@ -25,13 +25,16 @@ func TestParseStatus(t *testing.T) {
 ,RG,1,1,1,1,1,1,1-1-014,1-1-01,0-,0-,0-,0,0,0,3001,:*`
 
 	expected := spanet.Status{
-		SetTemperature:   41.0,
-		WaterTemperature: 41.2,
-		Heating:          false,
-		UVOzone:          false,
-		Sanitise:         false,
-		Auto:             true,
-		Sleeping:         false,
+		SetTemperature:    41.0,
+		WaterTemperature:  41.2,
+		HeaterTemperature: 41.0,
+		CaseTemperature:   48.0,
+		WaterPresent:      true,
+		Heating:           false,
+		UVOzone:           false,
+		Sanitise:          false,
+		Auto:              true,
+		Sleeping:          false,
 		Pumps: []spanet.Pump{{
 			State:     spanet.PumpStateAuto,
 			Installed: true,
@@ -81,9 +84,9 @@ func TestParseStatus(t *testing.T) {
 			Speed:      5,
 			Colour:     0,
 		},
-		OperationMode:    spanet.OperationModeNormal,
-		FiltrationHour:   3,
-		FiltrationCycles: 3,
+		OperationMode:   spanet.OperationModeNormal,
+		FiltrationHour:  3,
+		FiltrationCycle: 3,
 		SleepTimers: []spanet.SleepTimer{{
 			State:      spanet.SleepTimerStateEveryDay,
 			StartTime:  time.Date(0, 11, 30, 16, 30, 0, 0, time.UTC),
@@ -107,7 +110,17 @@ func TestParseStatus(t *testing.T) {
 			Month:  7,
 			Year:   2024,
 		},
-		Lock: spanet.LockModeOff,
+		Lock:                   spanet.LockModeOff,
+		AwakeRemains:           0,
+		FilterPumpTotalRunTime: 199,
+		FilterPumpReq:          0,
+		RuntimeHours:           168.2,
+		Power: spanet.Power{
+			Volts:        235,
+			Amps:         0,
+			CurrentLimit: 15,
+			LoadShed:     7,
+		},
 	}
 
 	status, err := spanet.ParseStatus(strings.NewReader(testRF))

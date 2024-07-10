@@ -1,6 +1,6 @@
 # spanet - API
 
-A JSON API provided by the `spanet server` subcommand
+A JSON API provided by the `spanet server` subcommand if you are using vscode and have [Rest-Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) installed you can use API.http to make requests
 
 - [spanet - API](#spanet---api)
 	- [GET /spa/status](#get-spastatus)
@@ -21,7 +21,7 @@ A JSON API provided by the `spanet server` subcommand
 	- [GET /spa/operation/modes](#get-spaoperationmodes)
 	- [POST /spa/operation/mode](#post-spaoperationmode)
 	- [POST /spa/sanitise](#post-spasanitise)
-	- [POST /spa/sanatise/time](#post-spasanatisetime)
+	- [POST /spa/sanitise/time](#post-spasanitisetime)
 	- [POST /spa/filtration/runtime](#post-spafiltrationruntime)
 	- [POST /spa/filtration/cycle](#post-spafiltrationcycle)
 	- [POST /spa/timeout](#post-spatimeout)
@@ -32,8 +32,8 @@ A JSON API provided by the `spanet server` subcommand
 	- [POST /spa/lock/mode](#post-spalockmode)
 	- [Get /spa/powersave/modes](#get-spapowersavemodes)
 	- [POST /spa/powersave/mode](#post-spapowersavemode)
-	- [POST /spa/peek/start](#post-spapeekstart)
-	- [POST /spa/peek/end](#post-spapeekend)
+	- [POST /spa/peak/start](#post-spapeakstart)
+	- [POST /spa/peak/end](#post-spapeakend)
 	- [Get /spa/sleeptimer/states](#get-spasleeptimerstates)
 	- [Post /spa/sleeptimer/$timerNumber/state](#post-spasleeptimertimernumberstate)
 	- [Post /spa/sleeptimer/$timerNumber/start](#post-spasleeptimertimernumberstart)
@@ -174,7 +174,7 @@ Accepts a JSON object to specify the speed of the blower
 
 Toggle sanatise function
 
-## POST /spa/sanatise/time
+## POST /spa/sanitise/time
 
 Accepts a JSON object to specify the time to auto sanitise
 
@@ -266,9 +266,9 @@ Accepts a JSON object to specify the powersave mode
 }
 ```
 
-## POST /spa/peek/start
+## POST /spa/peak/start
 
-Accepts a JSON object to specify when peek power starts
+Accepts a JSON object to specify when peak power starts
 
 ```json
 {
@@ -276,9 +276,9 @@ Accepts a JSON object to specify when peek power starts
 }
 ```
 
-## POST /spa/peek/end
+## POST /spa/peak/end
 
-Accepts a JSON object to specify when peek power ends
+Accepts a JSON object to specify when peak power ends
 
 ```json
 {
@@ -338,7 +338,7 @@ Accepts a json object to specify the year
 
 ```json
 {
-  "Year": 2021,
+  "Year": 2021
 }
 ```
 
@@ -348,7 +348,7 @@ Accepts a json object to specify the month
 
 ```json
 {
-  "Month": 10,
+  "Month": 10
 }
 ```
 
@@ -358,7 +358,7 @@ Accepts a json object to specify the day
 
 ```json
 {
-  "Day": 3,
+  "Day": 3
 }
 ```
 
@@ -368,7 +368,7 @@ Accepts a json object to specify the hour
 
 ```json
 {
-  "Hour": 21,
+  "Hour": 21
 }
 ```
 
@@ -378,7 +378,7 @@ Accepts a json object to specify the minute
 
 ```json
 {
-  "Minute": 12,
+  "Minute": 12
 }
 ```
 
@@ -389,7 +389,7 @@ spa api expects them, you can call this method with a date/time and just get on 
 
 ```json
 {
-  "DateTime": "2006-01-02 15:04",
+  "DateTime": "2006-01-02 15:04"
 }
 ```
 

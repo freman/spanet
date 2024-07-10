@@ -8,7 +8,7 @@ type ErrUnexpectedResponse struct {
 }
 
 func (e ErrUnexpectedResponse) Error() string {
-	return fmt.Sprintf("unexpected resposne, wanted: %s, got %s (w: %x, g: %x)", e.Expected, e.Got, e.Expected, e.Got)
+	return fmt.Sprintf("unexpected response, wanted: %s, got %s (w: %x, g: %x)", e.Expected, e.Got, e.Expected, e.Got)
 }
 
 type ErrValueOutOfRange struct {

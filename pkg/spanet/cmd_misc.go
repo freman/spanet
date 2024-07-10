@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -28,37 +29,8 @@ func (s *Spanet) ToggleSanitise() error {
 }
 
 func (s *Spanet) SetOperationMode(mode OperationMode) (OperationMode, error) {
-	var arg string
-	switch mode {
-	case OperationModeNormal:
-		arg = "0"
-	case OperationModeEconomy:
-		arg = "1"
-	case OperationModeAway:
-		arg = "2"
-	case OperationModeWeekdays:
-		arg = "3"
-	default:
-		return "", errors.New("Unsupported operational mode")
-	}
-
-	r, err := s.commandExpect(fmt.Sprintf("W66:%s", arg), arg)
-	if err != nil {
-		return "", err
-	}
-
-	switch r {
-	case "0":
-		return OperationModeNormal, nil
-	case "1":
-		return OperationModeEconomy, nil
-	case "2":
-		return OperationModeAway, nil
-	case "3":
-		return OperationModeWeekdays, nil
-	default:
-		return "", errors.New("unexpected response")
-	}
+	newMode, err := s.setMode("W66", byte(mode))
+	return OperationMode(newMode), err
 }
 
 func (s *Spanet) SetFiltrationRunTime(hours int) (int, error) {
@@ -70,20 +42,12 @@ func (s *Spanet) SetFiltrationCycle(hours int) (int, error) {
 		return 0, errors.New("hours outside of permitted range 1, 2, 3, 4, 6, 8, 12, 24")
 	}
 
-	r, err := s.command(fmt.Sprintf("W90:%d", hours))
+	r, err := s.commandInt("W90", hours, 1, 24, "cycles")
 	if err != nil {
 		return 0, err
 	}
 
-	_ = r
-	rs := ""
-
-	tmp, err := strconv.ParseInt(rs, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(tmp), nil
+	return int(r), nil
 }
 
 func (s *Spanet) SetAutoSanitiseTime(when time.Time) (time.Time, error) {
@@ -95,54 +59,27 @@ func (s *Spanet) SetTimeout(minutes int) (int, error) {
 }
 
 func (s *Spanet) SetHeatPumpMode(mode HeatPumpMode) (HeatPumpMode, error) {
-	r, err := s.command(fmt.Sprintf("W99:%d", mode))
-	if err != nil {
-		return 0, err
-	}
-
-	_ = r
-	rs := ""
-
-	tmp, err := strconv.ParseInt(rs, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return HeatPumpMode(tmp), nil
+	newMode, err := s.setMode("W99", byte(mode))
+	return HeatPumpMode(newMode), err
 }
 
 func (s *Spanet) SetSVElementBoost(enabled bool) (bool, error) {
-	val := 0
+	val := "0"
 	if enabled {
-		val = 1
+		val = "1"
 	}
 
-	r, err := s.command(fmt.Sprintf("W98:%d", val))
+	r, err := s.commandExpect(fmt.Sprintf("W98:%s", val), val)
 	if err != nil {
 		return false, err
 	}
 
-	_ = r
-	rs := ""
-
-	return strconv.ParseBool(rs)
+	return strconv.ParseBool(strings.TrimSpace(r))
 }
 
 func (s *Spanet) SetLockMode(mode LockMode) (LockMode, error) {
-	r, err := s.command(fmt.Sprintf("S21:%d", mode))
-	if err != nil {
-		return 0, err
-	}
-
-	_ = r
-	rs := ""
-
-	tmp, err := strconv.ParseInt(rs, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return LockMode(tmp), nil
+	newMode, err := s.setMode("S21", byte(mode))
+	return LockMode(newMode), err
 }
 
 func (s *Spanet) GetStatus() (Status, error) {

@@ -1,0 +1,440 @@
+@baseURL = http://127.0.0.1:8080
+
+# @name getStatus
+# Returns the current state of the spa
+GET {{baseURL}}/spa/status HTTP/1.1
+
+###
+
+# @name getLightModes
+# Returns a list of supported modes
+GET {{baseURL}}/spa/lights/modes HTTP/1.1
+
+###
+
+# @name setLights
+# Accepts a JSON object to define multiple light properties at the same time
+# @prompt mode Light Mode (see output from (see output from getLightModes)
+# @prompt brightness How bright (1-5)
+# @prompt effectSpeed How fast (1-5)
+# @prompt colour What colour (0-30)
+POST {{baseURL}}/spa/lights HTTP/1.1
+Content-Type: application/json
+
+{
+ "Mode":        "{{mode}}",
+ "Brightness":  {{brightness}},
+ "EffectSpeed": {{effectSpeed}},
+ "Colour":      {{colour}}
+}
+
+###
+
+# @name setLightsMode
+# Accepts a JSON object that specifies the lighting mode
+# @prompt mode Light Mode (see output from getLightModes)
+POST {{baseURL}}/spa/lights/mode HTTP/1.1
+Content-Type: application/json
+
+{"Mode": "{{mode}}"}
+
+###
+
+# @name setLightsBrightness
+# Accepts a JSON object that specifies the lighting brightness
+# @prompt brightness How bright (1-5)
+POST {{baseURL}}/spa/lights/brightness HTTP/1.1
+Content-Type: application/json
+
+{"Brightness": {{brightness}}}
+
+###
+
+# @name setLightsEffectSpeed
+# Accepts a JSON object that specifies the speed of the lighting effect
+# @prompt effectSpeed How fast (1-5)
+POST {{baseURL}}/spa/lights/effectspeed HTTP/1.1
+Content-Type: application/json
+
+{"EffectSpeed": {{effectSpeed}}}
+
+###
+
+# @name setLightsColour
+# Accepts a JSON object that specifies the colour of the lights
+# @prompt colour What colour (0-30)
+POST {{baseURL}}/spa/lights/colour HTTP/1.1
+Content-Type: application/json
+
+{"Colour": {{colour}}}
+
+###
+
+# @name setLightsOff
+# Turns the lights off
+POST {{baseURL}}/spalights/off HTTP/1.1
+
+###
+
+# @name toggleLights
+# Toggles the current lighting state
+POST {{baseURL}}/spa/lights/toggle HTTP/1.1
+
+###
+
+# @name getPumpStates
+# Returns a list of supported pump states
+GET {{baseURL}}/spa/pump/states HTTP/1.1
+
+###
+
+# @name setPumpMode
+# Accepts a JSON object to specify the state of the given $pumpNumber
+# @prompt pumpNumber Pump number (1-5)
+# @prompt pumpState State (see output from getPumpStates)
+POST {{baseURL}}/spa/pump/{{pumpNumber}} HTTP/1.1
+Content-Type: application/json
+
+{"State": "{{pumpState}}"}
+
+###
+
+# @name getBlowerModes
+# Returns a list of supported blower modes
+GET {{baseURL}}/spa/blower/modes HTTP/1.1
+
+###
+
+# @name setBlower
+# Accepts a JSON object to specify the state of the blower
+# @prompt blowerMode Blower mode (see output from getBlowerModes)
+# @prompt blowerSpeed Speed (1-5, 0 to omit)
+POST {{baseURL}}/spa/blower HTTP/1.1
+Content-Type: application/json
+
+{
+ "Mode": "{{blowerMode}}",
+ "Speed": {{blowerSpeed}}
+}
+
+###
+
+# @name setBlowerSpeed
+# Accepts a JSON object to specify the speed of the blower
+# @prompt blowerSpeed Speed (1-5, 0 to omit)
+POST {{baseURL}}/spa/blower/speed HTTP/1.1
+Content-Type: application/json
+
+{
+ "Speed": {{blowerSpeed}}
+}
+
+###
+
+# @name setTemperature
+# Accepts a JSON object to specify the target temperature
+# @prompt temperature Temperature of the spa (5.0-41.0)
+POST {{baseURL}}/spa/temperature HTTP/1.1
+Content-Type: application/json
+
+{
+ "Temperature": {{temperature}}
+}
+
+###
+
+# @name getOperationModes
+# Returns a list of supported operation modes
+GET {{baseURL}}/spa/operation/modes HTTP/1.1
+
+###
+
+# @name setOperationMode
+# Accepts a JSON object to specify the speed of the blower
+# @prompt operationMode Opreation mode (see output from getLightModes)
+POST {{baseURL}}/spa/operation/mode HTTP/1.1
+Content-Type: application/json
+
+{
+ "Mode": "{{operationMode}}"
+}
+
+###
+
+# @name toggleSanitise
+# Toggle sanatise function
+POST {{baseURL}}/spa/sanitise HTTP/1.1
+
+###
+
+# @name setAutoSanitiseTime
+# Accepts a JSON object to specify the time to auto sanitise
+# @prompt autoSanitiseTime Time to sanitise (hh:mm)
+POST {{baseURL}}/spa/sanitise/time HTTP/1.1
+Content-Type: application/json
+
+{
+ "Time": "{{autoSanitiseTime}}"
+}
+
+###
+
+# @name setFiltrationRuntime
+# Accepts a JSON object to specify the filtration runtime
+# @prompt filtrationHours Number of hours (1-24)
+POST {{baseURL}}/spa/filtration/runtime HTTP/1.1
+Content-Type: application/json
+
+{
+ "Hours": {{filtrationHours}}
+}
+
+###
+
+# @name setFiltrationCycle
+# Accepts a JSON object to specify the filtration cycle
+# @prompt filtrationCycle How many hours between each cycle (1, 2, 3, 4, 6, 8, 12, 24)
+POST {{baseURL}}/spa/filtration/cycle HTTP/1.1
+Content-Type: application/json
+
+{
+ "Hours": {{filtrationCycle}}
+}
+
+###
+
+# @name
+# Accepts a JSON object to specify the timeout (sleep)
+# @prompt minutes How many minutes to run before sleeping (10-60)
+POST {{baseURL}}/spa/timeout HTTP/1.1
+Content-Type: application/json
+
+{
+ "Minutes": {{minutes}}
+}
+
+###
+
+# @name getHeatpumpModes
+# Returns a list of supported heatpump modes
+GET {{baseURL}}/spa/heatpump/modes HTTP/1.1
+
+###
+
+# @name setHeatpumpMode
+# Accepts a JSON object to specify the heatpump mode
+# @prompt heatpumpMode Heatpump mode (see output from getHeatpumpModes)
+POST {{baseURL}}/spa/heatpump/mode HTTP/1.1
+Content-Type: application/json
+
+{
+ "Mode": "{{heatpumpMode}}"
+}
+
+###
+
+# @name setSVElementBoost
+# Accepts a JSON object to enable or disable sv element boost
+# @prompt elementBoost true or false
+POST {{baseURL}}/spa/svelementboost HTTP/1.1
+Content-Type: application/json
+
+{
+ "Boost": {{elementBoost}}
+}
+
+###
+
+# @name getLockModes
+# Returns a list of supported lock modes
+GET {{baseURL}}/spa/lock/modes HTTP/1.1
+
+###
+
+# @name setLockMode
+# Accepts a JSON object to specify the lock mode
+# @prompt lockMode Lock mode (see output from getLockModes)
+POST {{baseURL}}/spa/lock/mode HTTP/1.1
+Content-Type: application/json
+
+{
+ "Mode": "{{lockMode}}"
+}
+
+###
+
+# @name getPowersaveModes
+# Returns a list of supported powersave modes
+Get {{baseURL}}/spa/powersave/modes HTTP/1.1
+
+###
+
+# @name setPowersaveMode
+# Accepts a JSON object to specify the powersave mode
+# @prompt powersaveMode Powersave mode (see output from getPowersaveModes)
+POST {{baseURL}}/spa/powersave/mode HTTP/1.1
+Content-Type: application/json
+
+{
+ "Mode": "{{powersaveMode}}"
+}
+
+###
+
+# @name setPeakStart
+# Accepts a JSON object to specify when peak power starts
+# @prompt peakStart Time that peak power starts (hh:mm)
+POST {{baseURL}}/spa/peak/start HTTP/1.1
+Content-Type: application/json
+
+{
+ "Time": "{{peakStart}}"
+}
+
+###
+
+# @name setPeakEnd
+# Accepts a JSON object to specify when peak power ends
+# @prompt peakEnd Time to peak power ends (hh:mm)
+POST {{baseURL}}/spa/peak/end HTTP/1.1
+Content-Type: application/json
+
+{
+ "Time": "{{peakEnd}}"
+}
+
+###
+
+# @name getSleeptimerStates
+# Returns a list of supported sleeptimer states
+Get {{baseURL}}/spa/sleeptimer/states HTTP/1.1
+
+###
+
+# @name setSleepTimerState
+# Accepts a JSON object to specify the sleep timer state for the given $timerNumber
+# @prompt timerNumber Which timer (1-2)
+# @prompt timerState Sleep timer state (see output from getSleeptimerStates)
+Post {{baseURL}}/spa/sleeptimer/{{timerNumber}}/state HTTP/1.1
+Content-Type: application/json
+
+{
+  "State": "{{timerState}}"
+}
+
+###
+
+# @name setSleepTimerStart
+# Accepts a JSON object to specify the sleep timer start for the given $timerNumber
+# @prompt timerNumber Which timer (1-2)
+# @prompt timerStart Time the sleep period starts (hh:mm)
+Post {{baseURL}}/spa/sleeptimer/{{timerNumber}}/start HTTP/1.1
+Content-Type: application/json
+
+{
+  "Time": "{{timerStart}}"
+}
+
+###
+
+# @name setSleepTimerEnd
+# Accepts a JSON object to specify the sleep timer end for the given $timerNumber
+# @prompt timerNumber Which timer (1-2)
+# @prompt timerEnd Time the sleep period ends (hh:mm)
+Post {{baseURL}}/spa/sleeptimer/{{timerNumber}}/end HTTP/1.1
+Content-Type: application/json
+
+{
+  "Time": "{{timerEnd}}"
+}
+
+###
+
+# @name setSleepTimer
+# Shortcut to set all 3 parameters for a given sleep $timerNumber
+# @prompt timerNumber Which timer (1-2)
+# @prompt timerState Sleep timer state (see output from getSleeptimerStates)
+# @prompt timerStart Time the sleep period starts (hh:mm)
+# @prompt timerEnd Time the sleep period ends (hh:mm)
+Post {{baseURL}}/spa/sleeptimer/{{timerNumber}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "State": "{{timerState}}",
+  "Start": "{{timerStart}}",
+  "End": "{{timerEnd}}"
+}
+
+###
+
+# @name setDateTimeYear
+# Accepts a json object to specify the year
+# @prompt year Year (2024)
+Post {{baseURL}}/spa/datetime/year HTTP/1.1
+Content-Type: application/json
+
+{
+  "Year": {{year}}
+}
+
+###
+
+# @name setDateTimeMonth
+# Accepts a json object to specify the month
+# @prompt month Month (1-12)
+Post {{baseURL}}/spa/datetime/month HTTP/1.1
+Content-Type: application/json
+
+{
+  "Month": {{month}}
+}
+
+###
+
+# @name setDateTimeDay
+# Accepts a json object to specify the day
+# @prompt day Day (1-31)
+Post {{baseURL}}/spa/datetime/day HTTP/1.1
+Content-Type: application/json
+
+{
+  "Day": {{day}}
+}
+
+###
+
+# @name setDateTimeHour
+# Accepts a json object to specify the hour
+# @prompt hour Hour (0-23)
+Post {{baseURL}}/spa/datetime/hour HTTP/1.1
+Content-Type: application/json
+
+{
+  "Hour": {{hour}}
+}
+
+###
+
+# @name setDateTimeMinute
+# Accepts a json object to specify the minute
+# @prompt minute Minute (0:59)
+Post {{baseURL}}/spa/datetime/minute HTTP/1.1
+Content-Type: application/json
+
+{
+  "Minute": {{minute}}
+}
+
+###
+
+# @name setDateTime
+# If you think the previous 5 methods were a bit silly, well that's how the spa api expects them, you can call this method with a date/time and just get on with life
+# @prompt datetime Date and Time (2006-01-02 15:04)
+Post {{baseURL}}/spa/datetime HTTP/1.1
+Content-Type: application/json
+
+{
+  "DateTime": "{{datetime}}"
+}
+
+

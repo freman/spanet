@@ -8,6 +8,7 @@ import (
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
 	"github.com/google/subcommands"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type serverCmd struct {
@@ -28,6 +29,7 @@ func (s *serverCmd) SetFlags(f *flag.FlagSet) {
 
 func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	e := echo.New()
+	e.Use(middleware.Logger())
 
 	safeSpa := safespa.New(s.spa)
 	svc := service{
@@ -38,7 +40,7 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 
 	// cmd_lights.go
 	api.POST("/lights", svc.handlePostLights)
-	api.GET("/lights/modes", svc.handleGetList(spanet.LightsModeNames()))
+	api.GET("/lights/modes", svc.handleGetList(spanet.LightsModeStrings()))
 	api.POST("/lights/mode", svc.handleSimplePost("SetLightsMode"))
 	api.POST("/lights/brightness", svc.handleSimplePost("SetLightsBrightness"))
 	api.POST("/lights/effectspeed", svc.handleSimplePost("SetLightsEffectSpeed"))
@@ -48,34 +50,34 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 
 	// cmd_mechanical.go
 	api.POST("/pump/:pump", svc.handlePostPump)
-	api.GET("/pump/states", svc.handleGetList(spanet.PumpStateNames()))
+	api.GET("/pump/states", svc.handleGetList(spanet.PumpStateStrings()))
 	api.POST("/blower", svc.handlePostBlower)
-	api.GET("/blower/modes", svc.handleGetList(spanet.BlowerModeNames()))
+	api.GET("/blower/modes", svc.handleGetList(spanet.BlowerModeStrings()))
 	api.POST("/blower/speed", svc.handleSimplePost("SetBlowerVariableSpeed"))
 
 	// cmd_misc.go
 	api.POST("/temperature", svc.handleSimplePost("SetTargetTemperature"))
-	api.GET("/operation/modes", svc.handleGetList(spanet.OperationModeNames()))
+	api.GET("/operation/modes", svc.handleGetList(spanet.OperationModeStrings()))
 	api.POST("/operation/mode", svc.handleSimplePost("SetOperationMode"))
 	api.POST("/sanitise", svc.handleSimplePost("ToggleSanitise"))
 	api.POST("/sanitise/time", svc.handlePostSanitiseTime)
 	api.POST("/filtration/runtime", svc.handleSimplePost("SetFiltrationRunTime", "Hours"))
-	api.POST("/filtration/cycles", svc.handleSimplePost("SetFiltrationCycle", "Hours"))
+	api.POST("/filtration/cycle", svc.handleSimplePost("SetFiltrationCycle", "Hours"))
 	api.POST("/timeout", svc.handleSimplePost("SetTimeout", "Minutes"))
-	api.GET("/heatpump/modes", svc.handleGetList(spanet.HeatPumpModeNames()))
+	api.GET("/heatpump/modes", svc.handleGetList(spanet.HeatPumpModeStrings()))
 	api.POST("/heatpump/mode", svc.handleSimplePost("SetHeatPumpMode"))
 	api.POST("/svelementboost", svc.handleSimplePost("SetSVElementBoost"))
-	api.GET("/lock/modes", svc.handleGetList(spanet.LockModeNames()))
+	api.GET("/lock/modes", svc.handleGetList(spanet.LockModeStrings()))
 	api.POST("/lock/mode", svc.handleSimplePost("SetLockMode"))
 
 	// cmd_power.go
-	api.GET("/powersave/modes", svc.handleGetList(spanet.PowerSaveModeNames()))
+	api.GET("/powersave/modes", svc.handleGetList(spanet.PowerSaveModeStrings()))
 	api.POST("/powersave/mode", svc.handleSimplePost("SetPowerSave"))
-	api.POST("/peek/start", svc.handlePostPeekStart)
-	api.POST("/peek/end", svc.handlePostPeekEnd)
+	api.POST("/peak/start", svc.handlePostPeakStart)
+	api.POST("/peak/end", svc.handlePostPeakEnd)
 
 	// cmd_sleep.go
-	api.GET("/sleeptimer/states", svc.handleGetList(spanet.SleepTimerStateNames()))
+	api.GET("/sleeptimer/states", svc.handleGetList(spanet.SleepTimerStateStrings()))
 	api.POST("/sleeptimer/:timer/state", svc.handlePostSetSleepTimerState)
 	api.POST("/sleeptimer/:timer/start", svc.handlePostSleepTimerStart)
 	api.POST("/sleeptimer/:timer/end", svc.handlePostSleepTimerEnd)

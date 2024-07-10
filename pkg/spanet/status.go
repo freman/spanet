@@ -10,7 +10,7 @@ import (
 type PumpState byte
 type BlowerMode byte
 type LightsMode byte
-type OperationMode string
+type OperationMode byte
 type SleepTimerState byte
 type PowerSaveMode byte
 type HeatPumpMode byte
@@ -20,21 +20,24 @@ type Timeout struct {
 }
 
 type Status struct {
-	SetTemperature   float64 `rf:"R6,9"`
-	WaterTemperature float64 `rf:"R5,16"`
-	Heating          bool    `rf:"R5,13"`
-	UVOzone          bool    `rf:"R5,12"`
-	Sanitise         bool    `rf:"R5,17"`
-	Auto             bool    `rf:"R5,14"`
-	Sleeping         bool    `rf:"R5,11"`
-	Pumps            []Pump
-	Blower           Blower
-	Lights           Lights
+	SetTemperature    float64 `rf:"R6,9"`
+	WaterTemperature  float64 `rf:"R5,16"`
+	HeaterTemperature float64 `rf:"R2,12"`
+	CaseTemperature   float64 `rf:"R2,4"`
+	WaterPresent      bool    `rf:"R2:15`
+	Heating           bool    `rf:"R5,13"`
+	UVOzone           bool    `rf:"R5,12"`
+	Sanitise          bool    `rf:"R5,17"`
+	Auto              bool    `rf:"R5,14"`
+	Sleeping          bool    `rf:"R5,11"`
+	Pumps             []Pump
+	Blower            Blower
+	Lights            Lights
 
-	OperationMode    OperationMode `rf:"R4,2"`
-	FiltrationHour   byte          `rf:"R6,7"`
-	FiltrationCycles byte          `rf:"R6,8"` // 1, 2, 3, 4, 6, 8, 12 and 24
-	SleepTimers      []SleepTimer
+	OperationMode   OperationMode `rf:"R4,2"`
+	FiltrationHour  byte          `rf:"R6,7"`
+	FiltrationCycle byte          `rf:"R6,8"` // 1, 2, 3, 4, 6, 8, 12 and 24
+	SleepTimers     []SleepTimer
 
 	PowerSave      PowerSaveMode `rf:"R6,11"`
 	PeakStart      time.Time     `rf:"R5,12"`
@@ -47,6 +50,13 @@ type Status struct {
 	TimeDate TimeDate
 
 	Lock LockMode `rf:"RG,13"`
+
+	AwakeRemains           int     `rf:"R2,17`  // unsure
+	FilterPumpTotalRunTime int     `rf:"R2,18"` // minutes
+	FilterPumpReq          int     `rf:"R2,19`  //unsure
+	RuntimeHours           float64 `rf:"R2,22`  // * 10
+
+	Power Power
 }
 
 type Pump struct {
@@ -84,6 +94,14 @@ type TimeDate struct {
 	Year   uint `rf:"R2,12"`
 }
 
+type Power struct {
+	Volts        int     `rf:"R2,3"`
+	Amps         int     `rf:"R2,2"`
+	HeatingAmps  float64 `rf:"R3,23"`
+	CurrentLimit int     `rf:"R3,2"`
+	LoadShed     int     `rf:"R3,18"`
+}
+
 const (
 	PumpStateOff  PumpState = 0 // Off
 	PumpStateOn   PumpState = 1 // On
@@ -105,20 +123,11 @@ const (
 )
 
 const (
-	OperationModeNormal   OperationMode = "NORM"
-	OperationModeEconomy  OperationMode = "ECON"
-	OperationModeAway     OperationMode = "AWAY"
-	OperationModeWeekdays OperationMode = "WEEK"
+	OperationModeNormal   OperationMode = 0 // NORM
+	OperationModeEconomy  OperationMode = 1 // ECON
+	OperationModeAway     OperationMode = 2 // AWAY
+	OperationModeWeekdays OperationMode = 3 // WEEK
 )
-
-func OperationModeNames() []string {
-	return []string{
-		string(OperationModeNormal),
-		string(OperationModeEconomy),
-		string(OperationModeAway),
-		string(OperationModeWeekdays),
-	}
-}
 
 const (
 	PowerSaveModeOff  PowerSaveMode = 0 // Off
@@ -145,10 +154,6 @@ const (
 	SleepTimerStateEveryDay SleepTimerState = 127 // Everyday
 	SleepTimerStateOff      SleepTimerState = 128 // Off
 )
-
-func (o OperationMode) String() string {
-	return string(o)
-}
 
 func (t TimeDate) AsTime() time.Time {
 	return time.Date(
