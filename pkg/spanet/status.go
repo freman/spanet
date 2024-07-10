@@ -24,7 +24,7 @@ type Status struct {
 	WaterTemperature  float64 `rf:"R5,16"`
 	HeaterTemperature float64 `rf:"R2,12"`
 	CaseTemperature   float64 `rf:"R2,4"`
-	WaterPresent      bool    `rf:"R2:15`
+	WaterPresent      bool    `rf:"R2:15"`
 	Heating           bool    `rf:"R5,13"`
 	UVOzone           bool    `rf:"R5,12"`
 	Sanitise          bool    `rf:"R5,17"`
@@ -51,10 +51,10 @@ type Status struct {
 
 	Lock LockMode `rf:"RG,13"`
 
-	AwakeRemains           int     `rf:"R2,17`  // unsure
+	AwakeRemains           int     `rf:"R2,17"` // unsure
 	FilterPumpTotalRunTime int     `rf:"R2,18"` // minutes
-	FilterPumpReq          int     `rf:"R2,19`  //unsure
-	RuntimeHours           float64 `rf:"R2,22`  // * 10
+	FilterPumpReq          int     `rf:"R2,19"` //unsure
+	RuntimeHours           float64 `rf:"R2,22"` // * 10
 
 	Power Power
 }

@@ -10,8 +10,8 @@ import (
 
 func ParseStatus(reader io.Reader) (status Status, err error) {
 	parser := parser{Status: Status{
-		Pumps:       make([]Pump, 5, 5),
-		SleepTimers: make([]SleepTimer, 2, 2),
+		Pumps:       make([]Pump, 5),
+		SleepTimers: make([]SleepTimer, 2),
 	}}
 
 	scanner := bufio.NewScanner(reader)
@@ -180,7 +180,7 @@ func (p *parser) parseRG(v string) {
 		p.Pumps[i].Installed = p.parseBool(tmp[0])
 		if p.Pumps[i].Installed {
 			p.Pumps[i].SpeedType = p.parseByte(tmp[1])
-			p.Pumps[i].States = make([]PumpState, len(tmp[2]), len(tmp[2]))
+			p.Pumps[i].States = make([]PumpState, len(tmp[2]))
 
 			for n, v := range tmp[2] {
 				p.Pumps[i].States[n] = PumpState(p.parseByte(string(v)))

@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/freman/spanet/pkg/spanet"
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
 	"github.com/labstack/echo/v4"
@@ -66,22 +65,6 @@ func (s *service) handlePostLights(c echo.Context) error {
 	}
 
 	return nil
-}
-
-func (s *service) handlePostLightsOff(c echo.Context) error {
-	if err := s.spa.SetLightsOff(); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
-	}
-
-	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
-}
-
-func (s *service) handlePostToggleLights(c echo.Context) error {
-	if err := s.spa.ToggleLights(); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
-	}
-
-	return c.JSONBlob(http.StatusOK, []byte(`"ok"`))
 }
 
 func (s *service) handlePostPump(c echo.Context) error {
@@ -332,8 +315,7 @@ func (s *service) handleSimplePost(fn string, name ...string) echo.HandlerFunc {
 				if err, isa := err.(*echo.HTTPError); isa {
 					return err
 				}
-				spew.Config.DisableMethods = true
-				spew.Dump(err)
+
 				return echo.NewHTTPError(http.StatusBadRequest, err)
 			}
 
@@ -343,6 +325,7 @@ func (s *service) handleSimplePost(fn string, name ...string) echo.HandlerFunc {
 				if isa {
 					return echo.NewHTTPError(http.StatusInternalServerError, err.Error(), err)
 				}
+
 				return echo.NewHTTPError(http.StatusInternalServerError, out[erridx].Interface())
 			}
 
