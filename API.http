@@ -203,7 +203,7 @@ Content-Type: application/json
 
 ###
 
-# @name
+# @name setTimeout
 # Accepts a JSON object to specify the timeout (sleep)
 # @prompt minutes How many minutes to run before sleeping (10-60)
 POST {{baseURL}}/spa/timeout HTTP/1.1

@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/freman/spanet/pkg/spanet"
 	"github.com/labstack/echo/v4"
+
+	"github.com/freman/spanet/pkg/spanet"
 )
 
 type SafeSpa struct {
@@ -15,10 +16,10 @@ type SafeSpa struct {
 	*spanet.Spanet
 }
 
-func New(addr string) *SafeSpa {
-	return &SafeSpa{
-		addr: addr,
-	}
+func New(opt initOpt) *SafeSpa {
+	var s SafeSpa
+	opt(&s)
+	return &s
 }
 
 func (s *SafeSpa) Mutex(next echo.HandlerFunc) echo.HandlerFunc {
@@ -39,9 +40,26 @@ func (s *SafeSpa) Mutex(next echo.HandlerFunc) echo.HandlerFunc {
 
 		// Hack: until I can reliably detect the spa dropping the connection
 		// every connection will be a new connection, we'll just pretend it's recycled.
-		s.Spanet.Close()
-		s.Spanet = nil
+		// Don't destroy the connection if there's no address to re-create it - handy for tests
+		if s.addr != "" {
+			s.Spanet.Close()
+			s.Spanet = nil
+		}
 
 		return err
+	}
+}
+
+type initOpt func(s *SafeSpa)
+
+func WithAddr(addr string) func(s *SafeSpa) {
+	return func(s *SafeSpa) {
+		s.addr = addr
+	}
+}
+
+func WithSpanet(spa *spanet.Spanet) func(s *SafeSpa) {
+	return func(s *SafeSpa) {
+		s.Spanet = spa
 	}
 }

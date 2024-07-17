@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/labstack/echo/v4"
+
 	"github.com/freman/spanet/pkg/spanet"
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
-	"github.com/labstack/echo/v4"
 )
 
 type service struct {

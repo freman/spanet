@@ -4,11 +4,12 @@ import (
 	"context"
 	"flag"
 
-	"github.com/freman/spanet/pkg/spanet"
-	"github.com/freman/spanet/subcmd/server/middleware/safespa"
 	"github.com/google/subcommands"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/freman/spanet/pkg/spanet"
+	"github.com/freman/spanet/subcmd/server/middleware/safespa"
 )
 
 type serverCmd struct {
@@ -31,7 +32,16 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	safeSpa := safespa.New(s.spa)
+	safeSpa := safespa.New(safespa.WithAddr(s.spa))
+
+	defineRoutes(e, safeSpa)
+
+	e.Start(s.listen)
+
+	return subcommands.ExitSuccess
+}
+
+func defineRoutes(e *echo.Echo, safeSpa *safespa.SafeSpa) {
 	svc := service{
 		spa: safeSpa,
 	}
@@ -72,7 +82,7 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 
 	// cmd_power.go
 	api.GET("/powersave/modes", svc.handleGetList(spanet.PowerSaveModeStrings()))
-	api.POST("/powersave/mode", svc.handleSimplePost("SetPowerSave"))
+	api.POST("/powersave/mode", svc.handleSimplePost("SetPowerSave", "Mode"))
 	api.POST("/peak/start", svc.handlePostPeakStart)
 	api.POST("/peak/end", svc.handlePostPeakEnd)
 
@@ -93,10 +103,6 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	api.POST("/datetime", svc.handlePostDateTime)
 
 	api.GET("/status", svc.handleGetStatus)
-
-	e.Start(s.listen)
-
-	return subcommands.ExitSuccess
 }
 
 func init() {
