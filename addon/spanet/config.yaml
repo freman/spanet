@@ -1,5 +1,5 @@
 name: "Spanet Spa Bridge"
-version: "1.0.0"
+version: "1.0.1"
 slug: "spanet"
 description: "HTTP API and Home Assistant MQTT bridge for Spanet-controlled spas"
 url: "https://github.com/freman/spanet"
