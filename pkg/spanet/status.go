@@ -96,7 +96,7 @@ type TimeDate struct {
 
 type Power struct {
 	Volts        int     `rf:"R2,3"`
-	Amps         int     `rf:"R2,2"`
+	Amps         float64 `rf:"R2,2"` // *10
 	HeatingAmps  float64 `rf:"R3,23"`
 	CurrentLimit int     `rf:"R3,2"`
 	LoadShed     int     `rf:"R3,18"`

@@ -89,7 +89,7 @@ func (p *parser) parseTime(i string) time.Time {
 
 func (p *parser) parseR2(v string) {
 	list := strings.Split(v, ",")
-	p.Power.Amps = int(p.parseUint(list[0]))
+	p.Power.Amps = float64(p.parseUint(list[0])) / 10.0
 	p.Power.Volts = int(p.parseUint(list[1]))
 	p.CaseTemperature = float64(p.parseUint(list[2]))
 	p.TimeDate.Hour = p.parseByte(list[5])

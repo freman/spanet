@@ -4,6 +4,10 @@ import (
 	"context"
 	"flag"
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/google/subcommands"
 	"github.com/labstack/echo/v5"
@@ -11,22 +15,39 @@ import (
 
 	"github.com/freman/spanet/pkg/spanet"
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
+	"github.com/freman/spanet/subcmd/server/mqttbridge"
 )
+
+// gracefulTimeout bounds how long we'll wait for in-flight requests to
+// drain after the first shutdown signal before giving up.
+const gracefulTimeout = 10 * time.Second
 
 type serverCmd struct {
 	spa    string
 	listen string
+
+	mqttBroker       string
+	mqttUsername     string
+	mqttPassword     string
+	mqttNodeID       string
+	mqttPollInterval time.Duration
 }
 
 func (*serverCmd) Name() string     { return "server" }
 func (*serverCmd) Synopsis() string { return "A JSON bridge to your spalink" }
 func (*serverCmd) Usage() string {
-	return `server -spa ip:port -listen ip:port
+	return `server -spa ip:port -listen ip:port [-mqtt-broker tcp://host:1883 ...]
 `
 }
 func (s *serverCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&s.spa, "spa", "", "Spa host:port")
 	f.StringVar(&s.listen, "listen", ":8080", "Listen host:port")
+
+	f.StringVar(&s.mqttBroker, "mqtt-broker", "", "MQTT broker URL, e.g. tcp://localhost:1883 - enables Home Assistant MQTT discovery when set")
+	f.StringVar(&s.mqttUsername, "mqtt-username", "", "MQTT username")
+	f.StringVar(&s.mqttPassword, "mqtt-password", "", "MQTT password")
+	f.StringVar(&s.mqttNodeID, "mqtt-node-id", "spanet", "Unique id for this spa in Home Assistant and MQTT topics")
+	f.DurationVar(&s.mqttPollInterval, "mqtt-poll-interval", 15*time.Second, "How often to poll spa status for MQTT")
 }
 
 func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcommands.ExitStatus {
@@ -34,11 +55,78 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcom
 	e.Use(middleware.RequestLogger())
 
 	safeSpa := safespa.New(safespa.WithAddr(s.spa))
+	defer func() {
+		if err := safeSpa.Close(); err != nil {
+			slog.Warn("failed to close spa connection", "error", err)
+		}
+	}()
 
 	defineRoutes(e, safeSpa)
 
-	if err := e.Start(s.listen); err != nil {
-		slog.Error("server stopped", "error", err)
+	// signal.NotifyContext's stop func is documented as possibly restoring
+	// the OS default (kill) behavior for a signal once called, but in
+	// practice a second ctrl+c after that isn't guaranteed to do anything -
+	// so we watch for a second signal ourselves and force-exit on it.
+	sigCh := make(chan os.Signal, 2)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(sigCh)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go func() {
+		<-sigCh
+		slog.Info("shutting down, press ctrl+c again to force quit")
+		cancel()
+
+		<-sigCh
+		slog.Warn("force quitting, spa connection left dangling until it drops")
+		os.Exit(1)
+	}()
+
+	var mqttDone chan struct{}
+
+	if s.mqttBroker != "" {
+		bridge, err := mqttbridge.NewBridge(mqttbridge.Config{
+			Broker:       s.mqttBroker,
+			Username:     s.mqttUsername,
+			Password:     s.mqttPassword,
+			NodeID:       s.mqttNodeID,
+			PollInterval: s.mqttPollInterval,
+		}, safeSpa)
+		if err != nil {
+			slog.Error("failed to start mqtt bridge", "error", err)
+
+			return subcommands.ExitFailure
+		}
+
+		mqttDone = make(chan struct{})
+
+		go func() {
+			defer close(mqttDone)
+
+			if err := bridge.Start(ctx); err != nil {
+				slog.Error("mqtt bridge stopped", "error", err)
+			}
+		}()
+	}
+
+	sc := echo.StartConfig{
+		Address:         s.listen,
+		GracefulTimeout: gracefulTimeout,
+		OnShutdownError: func(err error) {
+			slog.Warn("graceful shutdown did not complete in time", "error", err)
+		},
+	}
+
+	httpErr := sc.Start(ctx, e)
+
+	if mqttDone != nil {
+		<-mqttDone
+	}
+
+	if httpErr != nil {
+		slog.Error("server stopped", "error", httpErr)
 
 		return subcommands.ExitFailure
 	}
