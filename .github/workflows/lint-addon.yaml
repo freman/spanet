@@ -1,0 +1,25 @@
+name: Lint add-on
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "addon/spanet/**"
+  pull_request:
+    paths:
+      - "addon/spanet/**"
+  workflow_dispatch: {}
+
+jobs:
+  lint:
+    name: Lint add-on config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Run Home Assistant add-on linter
+        uses: frenck/action-addon-linter@v2.21
+        with:
+          path: "./addon/spanet"

@@ -3,6 +3,7 @@ version: "1.0.0"
 slug: "spanet"
 description: "HTTP API and Home Assistant MQTT bridge for Spanet-controlled spas"
 url: "https://github.com/freman/spanet"
+image: "ghcr.io/freman/spanet"
 arch:
   - aarch64
   - amd64
