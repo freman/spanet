@@ -7,7 +7,7 @@ FROM golang:1.26-alpine AS build
 RUN CGO_ENABLED=0 go install -trimpath -ldflags="-s -w" github.com/freman/spanet/cmd/spalink@latest
 
 FROM alpine:3.20
-RUN apk add --no-cache ca-certificates jq
+RUN apk add --no-cache ca-certificates curl jq
 COPY --from=build /go/bin/spalink /usr/local/bin/spalink
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
