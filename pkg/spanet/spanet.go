@@ -14,10 +14,12 @@ type Spanet struct {
 }
 
 func New(c net.Conn) *Spanet {
-	// Improve reliability by always starting on a new line
+	// Improve reliability by always starting on a new line. Best effort: if this
+	// write fails the first real command will surface the same underlying error.
 	time.Sleep(100 * time.Millisecond)
-	c.Write([]byte{'\n'})
+	_, _ = c.Write([]byte{'\n'})
 	time.Sleep(100 * time.Millisecond)
+
 	return &Spanet{c}
 }
 
@@ -25,6 +27,7 @@ func (s *Spanet) command(command string) (io.Reader, error) {
 	if _, err := s.c.Write(append([]byte(command), '\n')); err != nil {
 		return nil, err
 	}
+
 	return s.c, nil
 }
 
@@ -74,6 +77,7 @@ func (s *Spanet) commandInt(cmd string, value, min, max int, name string, format
 	firstChunk := strings.TrimLeft(strings.TrimSpace(strings.Split(r, "\n")[0]), "0")
 
 	i, err := strconv.ParseInt(firstChunk, 10, 64)
+
 	return int(i), err
 }
 
@@ -88,6 +92,7 @@ func (s *Spanet) setMode(command string, mode byte) (byte, error) {
 	// Weirdly, sometimes S21 returns $mode\nS21\n so we'll just grab the first returned string
 	firstChunk := strings.TrimSpace(strings.Split(r, "\n")[0])
 	newMode, err := strconv.ParseInt(firstChunk, 10, 64)
+
 	return byte(newMode), err
 }
 

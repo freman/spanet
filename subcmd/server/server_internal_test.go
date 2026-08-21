@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -44,7 +44,7 @@ func TestServerSetPowerSave(t *testing.T) {
 	}
 }
 
-func doRequest(t *testing.T, server *httptest.Server, method, uriPath string, body interface{}) {
+func doRequest(t *testing.T, server *httptest.Server, method, uriPath string, body any) {
 	client := server.Client()
 
 	bodyBuf, err := json.Marshal(body)

@@ -38,7 +38,7 @@ func (c *connectCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.password, "password", "", "Password to connect with")
 }
 
-func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcommands.ExitStatus {
 	if c.ssid == "" || c.password == "" {
 		fmt.Println("ssid and password are required")
 		return subcommands.ExitUsageError
@@ -53,6 +53,7 @@ func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	if err != nil {
 		fmt.Println("Failed to connect to spanet controller")
 		fmt.Println(err)
+
 		return subcommands.ExitFailure
 	}
 
@@ -60,6 +61,7 @@ func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	if err != nil {
 		fmt.Println("Failed to enter command mode")
 		fmt.Println(err)
+
 		return subcommands.ExitFailure
 	}
 
@@ -69,6 +71,7 @@ func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	if err != nil {
 		fmt.Println("Error while scanning for access points")
 		fmt.Println(err)
+
 		return subcommands.ExitFailure
 	}
 
@@ -91,38 +94,59 @@ func (c *connectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 
 	fmt.Println("Configuring Spalink")
 
-	op.Set("ip dhcp", "1")
+	var setErr error
 
-	if replacement != wifly.DefaultReplacementCharacter {
-		op.Set("opt replace", fmt.Sprintf("0x%x", replacement[0]))
+	set := func(key, value string) {
+		if setErr != nil {
+			return
+		}
+
+		setErr = op.Set(key, value)
 	}
 
-	op.Set("wlan ssid", ssid)
-	op.Set("wlan phrase", password)
+	set("ip dhcp", "1")
 
 	if replacement != wifly.DefaultReplacementCharacter {
-		op.Set("opt replace", fmt.Sprintf("0x%x", wifly.DefaultReplacementCharacter[0]))
+		set("opt replace", fmt.Sprintf("0x%x", replacement[0]))
 	}
 
-	op.Set("wlan channel", "0")
-	op.Set("wlan auth", strconv.Itoa(matched[0].Auth))
-	op.Set("wlan linkmon", "30")
-	op.Set("comm idle", "300")
-	op.Set("comm remote", "0")
+	set("wlan ssid", ssid)
+	set("wlan phrase", password)
+
+	if replacement != wifly.DefaultReplacementCharacter {
+		set("opt replace", fmt.Sprintf("0x%x", wifly.DefaultReplacementCharacter[0]))
+	}
+
+	set("wlan channel", "0")
+	set("wlan auth", strconv.Itoa(matched[0].Auth))
+	set("wlan linkmon", "30")
+	set("comm idle", "300")
+	set("comm remote", "0")
 
 	// Disable autoreconn and ip host, should leave it listening on port 2000 on the lan without trying to phone anyone
-	op.Set("sys autoconn", "0")
-	op.Set("ip host", "0.0.0.0")
-	op.Set("wlan join", "1")
+	set("sys autoconn", "0")
+	set("ip host", "0.0.0.0")
+	set("wlan join", "1")
+
+	if setErr != nil {
+		fmt.Println("Error configuring spalink")
+		fmt.Println(setErr)
+
+		return subcommands.ExitFailure
+	}
 
 	if err := op.Save(); err != nil {
 		fmt.Println("Error saving config")
 		fmt.Println(err)
+
 		return subcommands.ExitFailure
 	}
 
 	fmt.Println("Done, rebooting")
-	op.Reboot()
+
+	// The device drops the connection as part of rebooting, so a failure here
+	// doesn't mean the reboot (and thus the config we already saved) didn't happen.
+	_ = op.Reboot()
 
 	return subcommands.ExitSuccess
 }

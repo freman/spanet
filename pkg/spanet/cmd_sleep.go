@@ -43,6 +43,7 @@ func (s *Spanet) SetSleepTimerState(timer int, state SleepTimerState) (SleepTime
 	if err != nil {
 		return 0, err
 	}
+
 	return SleepTimerState(tmp), nil
 }
 

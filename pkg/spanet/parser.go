@@ -39,6 +39,10 @@ func ParseStatus(reader io.Reader) (status Status, err error) {
 
 	}
 
+	if err := scanner.Err(); err != nil {
+		return parser.Status, err
+	}
+
 	return parser.Status, parser.err
 }
 
@@ -123,7 +127,7 @@ func (p *parser) parseR5(v string) {
 	p.WaterTemperature = float64(p.parseUint(list[14])) / 10.0
 	p.Sanitise = p.parseBool(list[15])
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		p.Pumps[i].State = PumpState(p.parseByte(list[17+i]))
 	}
 }
@@ -144,7 +148,7 @@ func (p *parser) parseR6(v string) {
 	p.PeakStart = p.parseTime(list[10])
 	p.PeakEnd = p.parseTime(list[11])
 
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		p.SleepTimers[i].State = SleepTimerState(p.parseByte(list[12+i]))
 		p.SleepTimers[i].StartTime = p.parseTime(list[14+i])
 		p.SleepTimers[i].FinishTime = p.parseTime(list[16+i])
@@ -168,7 +172,7 @@ func (p *parser) parseRC(v string) {
 func (p *parser) parseRG(v string) {
 	list := strings.Split(v, ",")
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		p.Pumps[i].SwitchOn = true
 
 		if i > 0 {

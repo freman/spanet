@@ -27,7 +27,7 @@ func (s *statusCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&s.spa, "spa", "", "Spa host:port")
 }
 
-func (s *statusCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (s *statusCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcommands.ExitStatus {
 	c, err := net.Dial("tcp", s.spa)
 	if err != nil {
 		fmt.Println(err)

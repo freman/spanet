@@ -16,7 +16,9 @@ func (i *IP) Set(x string) error {
 	if i.value.String() != x {
 		return errors.New("failed to parse IP")
 	}
+
 	i.set = true
+
 	return nil
 }
 
@@ -28,6 +30,7 @@ func (i *IP) IP() net.IP {
 	if i.set {
 		return i.value
 	}
+
 	return i.Default
 }
 

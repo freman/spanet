@@ -12,11 +12,13 @@ func (s *Spanet) SetTargetTemperature(target float64) (float64, error) {
 	temp := int(target * 10)
 	tmp, err := s.commandInt("W40", temp, 50, 410, "temperature")
 	if err != nil {
-		if merr, isa := err.(ErrValueOutOfRange); isa {
+		if merr, isa := errors.AsType[ErrValueOutOfRange](err); isa {
 			merr.Max = merr.Max / 10
 			merr.Min = merr.Min / 10
+
 			return 0, merr
 		}
+
 		return 0, err
 	}
 
@@ -38,7 +40,9 @@ func (s *Spanet) SetFiltrationRunTime(hours int) (int, error) {
 }
 
 func (s *Spanet) SetFiltrationCycle(hours int) (int, error) {
-	if !(hours >= 1 || hours <= 4 || hours == 6 || hours == 8 || hours == 12 || hours == 24) {
+	switch hours {
+	case 1, 2, 3, 4, 6, 8, 12, 24:
+	default:
 		return 0, errors.New("hours outside of permitted range 1, 2, 3, 4, 6, 8, 12, 24")
 	}
 

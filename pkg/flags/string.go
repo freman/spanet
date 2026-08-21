@@ -8,6 +8,7 @@ type String struct {
 func (s *String) Set(x string) error {
 	s.value = x
 	s.set = true
+
 	return nil
 }
 

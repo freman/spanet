@@ -1,0 +1,14 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    - wsl_v5
+  settings:
+    wsl_v5:
+      # Project rule: always insert a blank line before a return statement
+      # (unless it's the only line in the block). Other wsl_v5 whitespace
+      # opinions are intentionally left disabled.
+      default: none
+      enable:
+        - return

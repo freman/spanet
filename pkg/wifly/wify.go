@@ -99,7 +99,7 @@ func (c *Command) promptCommand(cmd string) (res []string, err error) {
 		}
 
 		// capture first error but don't leave yet because we want to keep reading
-		if strings.HasPrefix(line, "ERR:") && err != nil {
+		if strings.HasPrefix(line, "ERR:") && err == nil {
 			err = errors.New(line)
 		}
 		res = append(res, line)
@@ -158,7 +158,7 @@ func (c *Command) Scan() (res []WIFIRecord, err error) {
 		}
 
 		// capture first error but don't leave yet because we want to keep reading
-		if strings.HasPrefix(line, "ERR:") && err != nil {
+		if strings.HasPrefix(line, "ERR:") && err == nil {
 			err = errors.New(line)
 			continue
 		}
@@ -175,10 +175,8 @@ func (c *Command) Scan() (res []WIFIRecord, err error) {
 
 func (c *Command) Save() error {
 	_, err := c.promptCommand("save")
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }
 
 func (c *Command) Reboot() error {
@@ -219,6 +217,7 @@ func dropCR(data []byte) []byte {
 	if len(data) > 0 && data[len(data)-1] == '\r' {
 		return data[0 : len(data)-1]
 	}
+
 	return data
 }
 

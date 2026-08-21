@@ -18,7 +18,6 @@ func TestSpa256ToTime(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		v := v
 		t.Run(v.t.String(), func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, v.t, spa256toTime(v.i))

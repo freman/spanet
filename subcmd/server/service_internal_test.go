@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/freman/spanet/pkg/spanet"
@@ -52,8 +52,9 @@ func MockSpa4Command(t *testing.T, bufSz int, cmd []byte, checkFn func(b []byte)
 		b := make([]byte, bufSz)
 		for {
 			sz, err := spa.Read(b)
-			if !assert.NoError(t, err) {
-				assert.FailNow(t, "We just can't continue like this")
+			if err != nil {
+				// The pipe was closed by the test's cleanup func; nothing left to do.
+				return
 			}
 
 			if sz == 1 && b[0] == '\n' {
@@ -62,7 +63,7 @@ func MockSpa4Command(t *testing.T, bufSz int, cmd []byte, checkFn func(b []byte)
 
 			assert.Equal(t, cmd, b[0:3])
 			if res := checkFn(b[4 : sz-1]); res != nil {
-				spa.Write(append(res, '\n'))
+				_, _ = spa.Write(append(res, '\n'))
 			}
 		}
 	}()

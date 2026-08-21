@@ -3,10 +3,11 @@ package server
 import (
 	"context"
 	"flag"
+	"log/slog"
 
 	"github.com/google/subcommands"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 
 	"github.com/freman/spanet/pkg/spanet"
 	"github.com/freman/spanet/subcmd/server/middleware/safespa"
@@ -28,15 +29,19 @@ func (s *serverCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&s.listen, "listen", ":8080", "Listen host:port")
 }
 
-func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcommands.ExitStatus {
 	e := echo.New()
-	e.Use(middleware.Logger())
+	e.Use(middleware.RequestLogger())
 
 	safeSpa := safespa.New(safespa.WithAddr(s.spa))
 
 	defineRoutes(e, safeSpa)
 
-	e.Start(s.listen)
+	if err := e.Start(s.listen); err != nil {
+		slog.Error("server stopped", "error", err)
+
+		return subcommands.ExitFailure
+	}
 
 	return subcommands.ExitSuccess
 }
@@ -99,7 +104,6 @@ func defineRoutes(e *echo.Echo, safeSpa *safespa.SafeSpa) {
 	api.POST("/datetime/day", svc.handleSimplePost("SetDay"))
 	api.POST("/datetime/hour", svc.handleSimplePost("SetHour"))
 	api.POST("/datetime/minute", svc.handleSimplePost("SetMinute"))
-	api.POST("/datetime/year", svc.handleSimplePost("SetYear"))
 	api.POST("/datetime", svc.handlePostDateTime)
 
 	api.GET("/status", svc.handleGetStatus)
