@@ -79,7 +79,7 @@ func TestParseStatus(t *testing.T) {
 		},
 		Lights: spanet.Lights{
 			On:         false,
-			Mode:       spanet.LightsModeStep,
+			Mode:       spanet.LightsModeFade,
 			Brightness: 5,
 			Speed:      5,
 			Colour:     0,

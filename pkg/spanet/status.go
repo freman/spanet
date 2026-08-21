@@ -1,6 +1,6 @@
 package spanet
 
-//go:generate enumer -sql=false -linecomment -type=PumpState,BlowerMode,LightsMode,PowerSaveMode,HeatPumpMode,LockMode,SleepTimerState -output=status_strings.go $GOFILE
+//go:generate enumer -sql=false -linecomment -json -type=OperationMode,PumpState,BlowerMode,LightsMode,PowerSaveMode,HeatPumpMode,LockMode,SleepTimerState -output=status_strings.go $GOFILE
 
 import (
 	"encoding/json"
@@ -117,8 +117,8 @@ const (
 const (
 	LightsModeWhite  LightsMode = 0 // White
 	LightsModeColour LightsMode = 1 // Colour
-	LightsModeStep   LightsMode = 2 // Step
-	LightsModeFade   LightsMode = 3 // Fade
+	LightsModeFade   LightsMode = 2 // Fade
+	LightsModeStep   LightsMode = 3 // Step
 	LightsModeParty  LightsMode = 4 // Party
 )
 

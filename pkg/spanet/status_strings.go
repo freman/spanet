@@ -295,11 +295,11 @@ func (i *BlowerMode) UnmarshalJSON(data []byte) error {
 	return err
 }
 
-const _LightsModeName = "WhiteColourStepFadeParty"
+const _LightsModeName = "WhiteColourFadeStepParty"
 
 var _LightsModeIndex = [...]uint8{0, 5, 11, 15, 19, 24}
 
-const _LightsModeLowerName = "whitecolourstepfadeparty"
+const _LightsModeLowerName = "whitecolourfadestepparty"
 
 func (i LightsMode) String() string {
 	if i >= LightsMode(len(_LightsModeIndex)-1) {
@@ -314,22 +314,22 @@ func _LightsModeNoOp() {
 	var x [1]struct{}
 	_ = x[LightsModeWhite-(0)]
 	_ = x[LightsModeColour-(1)]
-	_ = x[LightsModeStep-(2)]
-	_ = x[LightsModeFade-(3)]
+	_ = x[LightsModeFade-(2)]
+	_ = x[LightsModeStep-(3)]
 	_ = x[LightsModeParty-(4)]
 }
 
-var _LightsModeValues = []LightsMode{LightsModeWhite, LightsModeColour, LightsModeStep, LightsModeFade, LightsModeParty}
+var _LightsModeValues = []LightsMode{LightsModeWhite, LightsModeColour, LightsModeFade, LightsModeStep, LightsModeParty}
 
 var _LightsModeNameToValueMap = map[string]LightsMode{
 	_LightsModeName[0:5]:        LightsModeWhite,
 	_LightsModeLowerName[0:5]:   LightsModeWhite,
 	_LightsModeName[5:11]:       LightsModeColour,
 	_LightsModeLowerName[5:11]:  LightsModeColour,
-	_LightsModeName[11:15]:      LightsModeStep,
-	_LightsModeLowerName[11:15]: LightsModeStep,
-	_LightsModeName[15:19]:      LightsModeFade,
-	_LightsModeLowerName[15:19]: LightsModeFade,
+	_LightsModeName[11:15]:      LightsModeFade,
+	_LightsModeLowerName[11:15]: LightsModeFade,
+	_LightsModeName[15:19]:      LightsModeStep,
+	_LightsModeLowerName[15:19]: LightsModeStep,
 	_LightsModeName[19:24]:      LightsModeParty,
 	_LightsModeLowerName[19:24]: LightsModeParty,
 }
