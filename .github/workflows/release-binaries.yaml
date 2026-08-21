@@ -1,0 +1,73 @@
+name: Release binaries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to build and attach binaries to"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: arm64
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version: "1.26"
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          mkdir -p dist
+          out=spalink
+          [ "${{ matrix.goos }}" = "windows" ] && out=spalink.exe
+          go build -trimpath -ldflags="-s -w" -o "dist/${out}" ./cmd/spalink
+
+      - name: Package
+        id: package
+        run: |
+          name="spalink-${{ matrix.goos }}-${{ matrix.goarch }}"
+          cd dist
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip "../${name}.zip" spalink.exe
+            echo "asset=${name}.zip" >> "$GITHUB_OUTPUT"
+          else
+            tar -czf "../${name}.tar.gz" spalink
+            echo "asset=${name}.tar.gz" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v3.0.2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          files: ${{ steps.package.outputs.asset }}
