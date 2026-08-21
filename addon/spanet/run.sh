@@ -8,9 +8,15 @@ NODE_ID=$(jq -r '.mqtt_node_id // "spanet"' "$OPTIONS_FILE")
 POLL_INTERVAL=$(jq -r '.mqtt_poll_interval // 15' "$OPTIONS_FILE")
 
 if [ -z "$SPA" ]; then
-	echo "spa (host:port) must be set in the add-on configuration" >&2
+	echo "spa (host or host:port) must be set in the add-on configuration" >&2
 	exit 1
 fi
+
+# Default to the WiFly bridge's usual port if the user only gave a host.
+case "$SPA" in
+*:*) ;;
+*) SPA="${SPA}:2000" ;;
+esac
 
 set -- server -spa "$SPA" -listen :8080
 

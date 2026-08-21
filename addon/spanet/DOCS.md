@@ -19,7 +19,8 @@ for details.
 ## Configuration
 
 ```yaml
-spa: "192.168.1.50:2000"   # required - your spa's host:port
+spa: "192.168.1.50"        # required - your spa's host, or host:port
+                            # (defaults to port 2000, the WiFly bridge's usual port)
 mqtt_node_id: "spanet"     # topic/entity id prefix if you run more than one spa
 mqtt_poll_interval: 15     # seconds between status polls
 ```

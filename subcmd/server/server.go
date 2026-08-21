@@ -114,6 +114,7 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcom
 	sc := echo.StartConfig{
 		Address:         s.listen,
 		GracefulTimeout: gracefulTimeout,
+		HideBanner:      true,
 		OnShutdownError: func(err error) {
 			slog.Warn("graceful shutdown did not complete in time", "error", err)
 		},
