@@ -87,16 +87,22 @@ func (s *Spanet) SetLockMode(mode LockMode) (LockMode, error) {
 }
 
 func (s *Spanet) GetStatus() (Status, error) {
+	status, err := s.tryGetStatus()
+	if err == nil {
+		return status, nil
+	}
+
+	if !s.reconnect() {
+		return Status{}, err
+	}
+
+	return s.tryGetStatus()
+}
+
+func (s *Spanet) tryGetStatus() (Status, error) {
 	r, err := s.command("RF")
 	if err != nil {
-		if !s.reconnect() {
-			return Status{}, err
-		}
-
-		r, err = s.command("RF")
-		if err != nil {
-			return Status{}, err
-		}
+		return Status{}, err
 	}
 
 	return ParseStatus(r)

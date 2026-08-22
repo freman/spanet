@@ -87,18 +87,13 @@ func (s *serverCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...any) subcom
 	var mqttDone chan struct{}
 
 	if s.mqttBroker != "" {
-		bridge, err := mqttbridge.NewBridge(mqttbridge.Config{
+		bridge := mqttbridge.NewBridge(mqttbridge.Config{
 			Broker:       s.mqttBroker,
 			Username:     s.mqttUsername,
 			Password:     s.mqttPassword,
 			NodeID:       s.mqttNodeID,
 			PollInterval: s.mqttPollInterval,
 		}, safeSpa)
-		if err != nil {
-			slog.Error("failed to start mqtt bridge", "error", err)
-
-			return subcommands.ExitFailure
-		}
 
 		mqttDone = make(chan struct{})
 

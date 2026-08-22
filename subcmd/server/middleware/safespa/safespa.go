@@ -5,11 +5,16 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/labstack/echo/v5"
 
 	"github.com/freman/spanet/pkg/spanet"
 )
+
+// dialTimeout bounds establishing the TCP connection itself, separately
+// from pkg/spanet's own read/write deadlines on an already-open one.
+const dialTimeout = 10 * time.Second
 
 // SafeSpa holds a single, persistent connection to the spa, guarded by a
 // mutex so concurrent HTTP requests serialize onto it rather than each
@@ -40,7 +45,7 @@ func (s *SafeSpa) Do(fn func(*spanet.Spanet) error) error {
 
 	if s.Spanet == nil {
 		spa, err := spanet.NewWithDialer(func() (net.Conn, error) {
-			return net.Dial("tcp", s.addr)
+			return net.DialTimeout("tcp", s.addr, dialTimeout)
 		})
 		if err != nil {
 			return err

@@ -44,26 +44,23 @@ type Bridge struct {
 	consecutiveFailures int
 }
 
-// NewBridge connects to the spa once to discover which pumps are fitted,
-// then builds and returns a Bridge ready to Start. It does not touch MQTT.
-func NewBridge(cfg Config, spa *safespa.SafeSpa) (*Bridge, error) {
+// initialStatusRetry is how long to wait between attempts to read the
+// spa's initial status before Start can finish setting up. The spa being
+// briefly unreachable at boot is a real, observed condition (its wifi
+// bridge only tolerates one connection and can get stuck holding a stale
+// one) - Start retries through that rather than giving up.
+const initialStatusRetry = 5 * time.Second
+
+// NewBridge builds a Bridge ready to Start. It does no I/O - unlike
+// talking to the spa or the broker, this can't hang or fail, so callers
+// don't need to guard the rest of their startup against it.
+func NewBridge(cfg Config, spa *safespa.SafeSpa) *Bridge {
 	if cfg.NodeID == "" {
 		cfg.NodeID = "spanet"
 	}
 
 	if cfg.PollInterval <= 0 {
 		cfg.PollInterval = 15 * time.Second
-	}
-
-	var status spanet.Status
-
-	if err := spa.Do(func(s *spanet.Spanet) error {
-		var err error
-		status, err = s.GetStatus()
-
-		return err
-	}); err != nil {
-		return nil, fmt.Errorf("reading initial spa status: %w", err)
 	}
 
 	mqc := hamqtt.New(hamqtt.Config{
@@ -80,18 +77,27 @@ func NewBridge(cfg Config, spa *safespa.SafeSpa) (*Bridge, error) {
 	})
 
 	return &Bridge{
-		cfg:      cfg,
-		spa:      spa,
-		mqc:      mqc,
-		entities: entities(spa, status.Pumps),
-	}, nil
+		cfg: cfg,
+		spa: spa,
+		mqc: mqc,
+	}
 }
 
-// Start connects to the broker, publishes discovery config and initial
-// state for every entity, subscribes command topics, and then polls spa
-// status on cfg.PollInterval until ctx is done, at which point it publishes
-// the offline availability message and disconnects.
+// Start reads the spa's initial status (retrying until it succeeds or ctx
+// is done, so a spa that's unreachable at boot doesn't block anything
+// else in the process from starting), connects to the broker, publishes
+// discovery config and initial state for every entity, subscribes command
+// topics, and then polls spa status on cfg.PollInterval until ctx is done,
+// at which point it publishes the offline availability message and
+// disconnects.
 func (b *Bridge) Start(ctx context.Context) error {
+	status, err := b.awaitInitialStatus(ctx)
+	if err != nil {
+		return err
+	}
+
+	b.entities = entities(b.spa, status.Pumps)
+
 	if err := b.mqc.Connect(); err != nil {
 		return fmt.Errorf("connecting to mqtt broker: %w", err)
 	}
@@ -123,6 +129,38 @@ func (b *Bridge) Start(ctx context.Context) error {
 			return nil
 		case <-ticker.C:
 			b.poll()
+		}
+	}
+}
+
+// awaitInitialStatus retries reading spa status until it succeeds or ctx
+// is done. The first attempt is silent; only repeated failures are logged,
+// since a single miss during a normal reconnect is not noteworthy.
+func (b *Bridge) awaitInitialStatus(ctx context.Context) (spanet.Status, error) {
+	attempt := 0
+
+	for {
+		var status spanet.Status
+
+		err := b.spa.Do(func(s *spanet.Spanet) error {
+			var err error
+			status, err = s.GetStatus()
+
+			return err
+		})
+		if err == nil {
+			return status, nil
+		}
+
+		attempt++
+		if attempt > 1 {
+			slog.Warn("mqtt bridge: waiting for spa to become reachable", "error", err, "attempt", attempt)
+		}
+
+		select {
+		case <-ctx.Done():
+			return spanet.Status{}, ctx.Err()
+		case <-time.After(initialStatusRetry):
 		}
 	}
 }

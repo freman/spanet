@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+// ioTimeout bounds every write and the read that follows it. Without this,
+// a connection the WiFly bridge has accepted but is never going to answer
+// on (which it does, in practice) hangs net.Conn.Read forever - no error,
+// no reconnect, nothing for the caller to react to.
+//
+// var, not const, so tests can shrink it rather than waiting out the real
+// timeout.
+var ioTimeout = 10 * time.Second
+
 // Spanet is not safe for concurrent use; callers are expected to serialize
 // access (see subcmd/server/middleware/safespa).
 type Spanet struct {
@@ -45,6 +54,7 @@ func NewWithDialer(dial func() (net.Conn, error)) (*Spanet, error) {
 // underlying error.
 func (s *Spanet) prime() {
 	time.Sleep(100 * time.Millisecond)
+	_ = s.c.SetWriteDeadline(time.Now().Add(ioTimeout))
 	_, _ = s.c.Write([]byte{'\n'})
 	time.Sleep(100 * time.Millisecond)
 }
@@ -70,6 +80,13 @@ func (s *Spanet) reconnect() bool {
 }
 
 func (s *Spanet) command(command string) (io.Reader, error) {
+	// Covers both this write and whatever the caller reads back from the
+	// returned reader afterwards, since it's the same deadline-bearing
+	// net.Conn either way.
+	if err := s.c.SetDeadline(time.Now().Add(ioTimeout)); err != nil {
+		return nil, err
+	}
+
 	if _, err := s.c.Write(append([]byte(command), '\n')); err != nil {
 		return nil, err
 	}
