@@ -4,7 +4,7 @@
 # are reproducible. Bump this alongside config.yaml's version field and add
 # an entry to CHANGELOG.md.
 FROM golang:1.26-alpine AS build
-RUN CGO_ENABLED=0 go install -trimpath -ldflags="-s -w" github.com/freman/spanet/cmd/spalink@v1.0.1
+RUN CGO_ENABLED=0 go install -trimpath -ldflags="-s -w" github.com/freman/spanet/cmd/spalink@v1.0.2
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates curl jq
